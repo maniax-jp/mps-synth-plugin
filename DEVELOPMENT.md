@@ -85,5 +85,5 @@ ninja -C build mps_gui_snapshot && build/bin/Release/mps_gui_snapshot gui.png   
 - `.github/workflows/build.yml`: macOS(Apple Silicon ランナー、ユニバーサル)/ Windows x64 / Linux x64 でビルド → validator →
   アーキテクチャ確認とアドホック署名(macOS)→ `live_test.py` → スキルの references が最新か(Linux)→ 成果物 `MPS-<os>.zip`
   (MPS.vst3、README、`mps-synth-plugin-skill.zip`。mps_render はデバッグ用なので入れない)。別のジョブで `claude plugin validate` を通す。
-- `v*` のタグを push すると、同じビルドの zip で GitHub Release を作る(`.github/workflows/release.yml`。例: `git tag v0.1.0 && git push origin v0.1.0`)。
+- `v*` のタグを push するか、Actions の画面で release ワークフローを手で実行して tag(例: `v0.1.0`)を入れると、同じビルドの zip で GitHub Release を作る(`.github/workflows/release.yml`。tag を空にすると zip の確認だけ)。
   バージョンは `core/engine.h` の `kVersion` と `CMakeLists.txt` の `project(VERSION)` をそろえる。
