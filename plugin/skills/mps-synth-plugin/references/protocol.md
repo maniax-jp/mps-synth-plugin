@@ -9,9 +9,9 @@ MPS Synth / MPS FX の各インスタンスは `127.0.0.1` の TCP ポート(478
 - Windows: `%LOCALAPPDATA%\mps-plugins\instances\*.json`
 
 ```json
-{"plugin": "MPS Synth", "plugin_id": "synth", "port": 47800, "host": "127.0.0.1", "pid": 5201, "track": "Bass", "started": 1792466808}
+{"plugin": "MPS FX", "plugin_id": "fx", "port": 47800, "host": "127.0.0.1", "pid": 5201, "track": "Bass", "name": "pump", "started": 1792466808}
 ```
-`track` は DAW のトラック名(DAW が VST3 のチャンネル情報を渡す場合。REAPER は渡す)。応答しないファイルは古いので無視してよい
+`name` はインスタンスの名前(`set_name` で付ける。付けていなければ空)。`track` は DAW のトラック名(DAW が VST3 のチャンネル情報を渡す場合。REAPER は渡す)。応答しないファイルは古いので無視してよい
 (`mps_ctl.py list` は消す)。
 
 ## 要求と応答
@@ -26,13 +26,14 @@ MPS Synth / MPS FX の各インスタンスは `127.0.0.1` の TCP ポート(478
 | cmd | 引数 | 内容 |
 |---|---|---|
 | `help` | | コマンド一覧 |
-| `info` | | プラグイン名・バージョン・ポート・トラック名・サンプルレート・テンポ・再生中か・プリセット名・コマンド数 |
+| `info` | | プラグイン名・バージョン・名前・ポート・トラック名・サンプルレート・テンポ・再生中か・プリセット名・コマンド数 |
+| `set_name` | `name` | インスタンスに名前を付ける(64 バイトまで、制御文字は不可、空文字で消す)。状態に保存され、レジストリにも載る。重複は検査しない(`mps_ctl.py rename` は検査する) |
 | `list_params` | | 全パラメータ(key, name, unit, scale, min, max, default, value, display, labels, help) |
 | `get` | `keys?: [key]`, `changed_only?: bool` | 現在値(プレーン値。enum / bool はラベル) |
 | `set` | `params: {key: 値}`, `normalized?: bool` | 値を変えてホストに通知する(DAW の表示・オートメーションの記録・プロジェクトの保存内容が変わる)。プリセット名の末尾に ` *` が付く |
 | `list_presets` | | ファクトリープリセット(name, desc) |
 | `load_preset` | `name`, `params?: {key: 値}` | プリセットを読み込み、`params` で上書き |
-| `get_state` | | 状態 JSON `{"format":"mps-state","version":1,"plugin":"synth","preset":"...","params":{...}}` |
+| `get_state` | | 状態 JSON `{"format":"mps-state","version":1,"plugin":"synth","name":"...","preset":"...","params":{...}}` |
 | `set_state` | `state` | 状態を読み込む(書いていないキーは既定値) |
 | `reset` | | 全パラメータを既定値に |
 | `play` | `note`, `velocity?: 0..1`, `duration?: 秒` | その場で鳴らす(DAW がそのトラックを処理していれば出力に出る) |

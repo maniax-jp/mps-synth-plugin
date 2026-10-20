@@ -32,7 +32,9 @@ void StatusView::draw(CDrawContext* ctx) {
     };
     const CColor white(235, 235, 240), dim(150, 155, 165), accent(110, 200, 255), ok(120, 220, 140), warn(255, 170, 90);
 
-    line(std::string(spec.name) + "  " + mps::kVersion, white, kNormalFontBig, 26);
+    std::string iname = st.value("name", std::string());
+    line(std::string(spec.name) + "  " + mps::kVersion + (iname.empty() ? std::string() : "    [" + iname + "]"), white,
+         kNormalFontBig, 26);
     int port = st.value("port", 0);
     if (st.empty()) line("制御サーバー: 状態を取得中...", dim, kNormalFont, 20);
     else if (port > 0) line("制御サーバー: 127.0.0.1:" + std::to_string(port), ok, kNormalFont, 20);
@@ -42,7 +44,9 @@ void StatusView::draw(CDrawContext* ctx) {
     std::string preset = st.value("preset", std::string("-"));
     char tempo[64];
     std::snprintf(tempo, sizeof tempo, "%.1f BPM%s", st.value("bpm", 120.0), st.value("playing", false) ? "  再生中" : "");
-    line("トラック: " + (track.empty() ? std::string("-") : track) + "    プリセット: " + preset, white, kNormalFont, 20);
+    line("トラック: " + (track.empty() ? std::string("-") : track) + "    名前: " + (iname.empty() ? std::string("-") : iname) +
+             "    プリセット: " + preset,
+         white, kNormalFont, 20);
     line(std::string(tempo) + "    MIDI ノート: " + std::to_string(st.value("midi_notes", 0)) + "    AI コマンド: " +
              std::to_string(st.value("commands", 0)),
          dim, kNormalFontSmall, 18);

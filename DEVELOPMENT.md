@@ -45,7 +45,7 @@ plugin/     Claude Code のプラグイン「mps-synth」(.claude-plugin/plugin.
 - 制御サーバーで変えた値には dirty 印が付き、次の `process()` で `outputParameterChanges` に載せてホストへ知らせる
   (DAW の表示と自動化の記録が追従する)。値が実際に変わったときだけ印を付ける。
 - `play` / `note_off` はミューテックス付きのキューに積み、オーディオスレッドは `try_lock` で取り出す(待たない)。
-- 状態(`getState` / `setState`)は JSON の文字列 `{"format":"mps-state","version":1,"plugin":"synth","preset":...,"params":{...}}`。
+- 状態(`getState` / `setState`)は JSON の文字列 `{"format":"mps-state","version":1,"plugin":"synth","name":...,"preset":...,"params":{...}}`(`name` はインスタンスの名前)。
   知らないキーは無視、書いていないキーは既定値。
 - プロセッサーとコントローラーは IMessage でやり取りする: トラック名(`mps.track`、IInfoListener から)、状態の問い合わせ
   (`mps.status?` → `mps.status`、GUI が 300 ms ごと)。256 文字の制限がある TextMessage は使わず、バイナリ属性 `data` に UTF-8 を入れる。
@@ -56,7 +56,8 @@ plugin/     Claude Code のプラグイン「mps-synth」(.claude-plugin/plugin.
 1 行 1 JSON の要求 `{"id": 任意, "cmd": "...", ...}` に、1 行 1 JSON `{"id": 同じ, "ok": true, "result": ...}`
 (失敗は `{"ok": false, "error": "..."}`、一部だけ失敗した `set` は `warnings`)で答える。コマンドの一覧はスキルの
 `references/protocol.md`(使う人・AI 向け)。環境変数 `MPS_CTL_PORT_BASE`(既定 47800、100 個の範囲)、`MPS_CTL_DISABLE=1`、
-`MPS_CTL_REGISTRY`。レジストリのファイル名は `<plugin>-<pid>-<port>.json`、終了時に消す。
+`MPS_CTL_REGISTRY`。レジストリのファイル名は `<plugin>-<pid>-<port>.json`、終了時に消す。中身はポート・プラグイン・トラック名・インスタンスの名前
+(`set_name` と `setState` のあとにプロセッサーが書き直す)。
 
 ### パラメータ・プリセットを足すとき
 - `SynthParam` / `FxParam` の enum と `synthParams()` / `fxParams()` の並びを一致させる(コンストラクタで個数を検査する)。

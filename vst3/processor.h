@@ -40,6 +40,7 @@ private:
     std::string handle(const std::string& line);
     mps::json statusJson();
     void applyEngineParams();
+    void syncNameToRegistry();
     void renderSegment(Steinberg::Vst::ProcessData& data, int start, int n, const mps::Transport& tr);
 
     const mps::PluginSpec& spec_;
@@ -57,6 +58,7 @@ private:
 
     std::mutex infoMutex_;
     std::string track_;
+    std::string publishedName_;
     std::deque<std::string> log_;
     long long commandCount_ = 0;
     std::atomic<double> bpm_{120.0};

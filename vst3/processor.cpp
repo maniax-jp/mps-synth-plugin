@@ -38,7 +38,8 @@ tresult PLUGIN_API MpsProcessor::initialize(FUnknown* context) {
     addAudioOutput(STR16("Stereo Out"), SpeakerArr::kStereo);
     addEventInput(STR16("MIDI In"), 1);
     server_.start([this](const std::string& line) { return handle(line); }, spec_.id);
-    server_.setMeta({{"plugin", spec_.name}, {"track", ""}});
+    server_.setMeta({{"plugin", spec_.name}, {"track", ""}, {"name", store_.instanceName()}});
+    publishedName_ = store_.instanceName();
     return kResultOk;
 }
 
@@ -197,6 +198,7 @@ tresult PLUGIN_API MpsProcessor::setState(IBStream* state) {
     } catch (...) {
         return kResultFalse;
     }
+    syncNameToRegistry();
     return kResultOk;
 }
 
@@ -234,6 +236,7 @@ std::string MpsProcessor::handle(const std::string& line) {
         return j;
     };
     std::string resp = mps::handleCommand(store_, line, hooks);
+    syncNameToRegistry();
     std::string cmd = "?";
     bool ok = false;
     try {
@@ -250,6 +253,16 @@ std::string MpsProcessor::handle(const std::string& line) {
     return resp;
 }
 
+void MpsProcessor::syncNameToRegistry() {
+    std::string n = store_.instanceName();
+    {
+        std::lock_guard<std::mutex> lk(infoMutex_);
+        if (n == publishedName_) return;
+        publishedName_ = n;
+    }
+    server_.setMeta({{"name", n}});
+}
+
 mps::json MpsProcessor::statusJson() {
     mps::json j{{"port", server_.port()}, {"sample_rate", sampleRate_}, {"bpm", bpm_.load()},
                 {"playing", playing_.load()}, {"midi_notes", activeEvents_.load()}};
@@ -259,6 +272,7 @@ mps::json MpsProcessor::statusJson() {
     j["log"] = log_;
     j["registry"] = mps::ControlServer::registryDir();
     j["preset"] = store_.presetName();
+    j["name"] = store_.instanceName();
     return j;
 }
 

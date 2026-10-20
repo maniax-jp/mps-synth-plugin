@@ -33,6 +33,10 @@ public:
     bool loadState(const json& state, bool markDirty);
     bool loadPreset(const std::string& name, bool markDirty);
     std::string presetName() const;
+    // インスタンスの名前(同じトラックに同じプラグインを複数挿したときに呼び分ける。状態に保存される)
+    std::string instanceName() const;
+    void setInstanceName(const std::string& n);
+    static bool validInstanceName(const std::string& n, std::string& err);
     void setPresetName(const std::string& n);
 
 private:
@@ -42,6 +46,7 @@ private:
     std::unique_ptr<std::atomic<bool>[]> dirty_;
     mutable std::mutex nameMutex_;
     std::string presetName_ = "Init";
+    std::string instanceName_;
 };
 
 struct RenderNote {
