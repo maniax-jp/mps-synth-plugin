@@ -1,6 +1,6 @@
 # MPS Synth / MPS FX
 
-テックコア、ハイテック、フューチャーコア、ハードコア系の音作りに使う VST3 プラグインです(製造元 Maniax)。
+テックコア、ハイテック、フューチャーコア、ハードコア系の音作りに使う VST3 プラグインです。
 **AI(Claude など)が GUI を触らずに外部から操作できる**のが特長で、DAW に挿したトラックを名前で選び、
 プリセットの読み込み、音色の調整、試し鳴らし、WAV の書き出しを AI に任せられます。
 
@@ -9,7 +9,6 @@
   キックのピッチ・エンベロープ、フィルター(LP/HP/BP/フォルマント)、Phaser・Disperser・歪みを内蔵。
 - **MPS FX**(エフェクト): サイドチェイン(曲のテンポか MIDI ノートで)、テープストップ、Phaser、Disperser、歪み、
   ステレオ幅 + Bass Mono。
-- 初期版(0.1.0)です。不具合や要望は [Issues](https://github.com/maniax-jp/mps-synth-plugin/issues) へお願いします。
 - 対応: macOS(**Apple Silicon と Intel のユニバーサル**、10.15 以降)、Windows 10/11(x64)、Linux(x64)。VST3 に対応した DAW。
 
 ![プラグインの画面](docs/status-gui.png)
@@ -28,9 +27,9 @@
    ```bash
    xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/MPS.vst3
    ```
-4. DAW でプラグインを再スキャンします。REAPER では `VST3i: MPS Synth (Maniax)` と `VST3: MPS FX (Maniax)` が出ます。
+4. DAW でプラグインを再スキャンします。音源プラグインとして MPS Synth が、FX プラグインとして MPS FX が読み込まれます。
 
-zip にはほかに `mps_render`(DAW を使わずに同じ音を WAV に書き出すコマンド)と、AI 用のスキル `mps-synth-plugin-skill.zip` が入っています。
+zip にはほかに AI 用のスキル `mps-synth-plugin-skill.zip` が入っています。
 
 ## AI から操作する(Claude 用スキル)
 Claude に操作方法を教えるスキル `mps-synth-plugin` を用意しています。どれか 1 つの方法で入れてください。
@@ -38,7 +37,7 @@ Claude に操作方法を教えるスキル `mps-synth-plugin` を用意して�
 - **Claude Code(プラグインとして)**:
   ```
   /plugin marketplace add maniax-jp/mps-synth-plugin
-  /plugin install mps-synth@maniax-music
+  /plugin install mps-synth@maniax-jp-mps-synth-plugin
   ```
   (Claude Code 2.1.275 以降なら `/plugin install mps-synth --marketplace maniax-jp/mps-synth-plugin` の 1 行でも入ります)
 - **Claude Code(手で)**: `mps-synth-plugin-skill.zip` を展開し、`mps-synth-plugin` フォルダを `~/.claude/skills/` に置きます。
@@ -72,5 +71,5 @@ DAW のトラックに名前を付けておくと、AI が「Bass トラック�
 ソースからのビルドや仕組みは [DEVELOPMENT.md](DEVELOPMENT.md) を見てください。
 
 ## ライセンス
-[MIT License](LICENSE)。ビルドに使う Steinberg VST3 SDK(3.8 以降)と nlohmann/json も MIT ライセンスです。
+[MIT License](LICENSE)。
 VST は Steinberg Media Technologies GmbH の商標です。

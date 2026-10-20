@@ -26,4 +26,4 @@ jobs:
           ls -l artifacts
           gh release create "${GITHUB_REF_NAME}" artifacts/*.zip --repo "${GITHUB_REPOSITORY}" \
             --title "MPS Synth / MPS FX ${GITHUB_REF_NAME#v}" \
-            --notes "VST3 プラグイン MPS Synth / MPS FX(製造元 Maniax)。インストール方法は README を見てください。macOS 版は Apple Silicon と Intel のユニバーサルです。"
+            --notes "VST3 プラグイン MPS Synth / MPS FX。インストール方法は README を見てください。macOS 版は Apple Silicon と Intel のユニバーサルです。"
