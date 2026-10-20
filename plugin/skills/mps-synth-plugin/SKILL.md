@@ -13,11 +13,21 @@ CTL="python3 ${CLAUDE_SKILL_DIR}/scripts/mps_ctl.py"
 ```
 
 ## 1. まず確かめる
-1. `$CTL list` で起動中のインスタンスを見る(`47800  MPS Synth  track='Bass'`)。
+1. `$CTL list` で起動中のインスタンスを見る(`47800  MPS Synth  track='Bass'  name='-'`)。
    - 何も出ない → DAW にプラグインが挿さっていない、DAW が起動していない、プラグインが入っていない。ユーザーに確かめる。
    - トラック名が空 → DAW がトラック名を渡していない。`--port` で選ぶ。
-2. 対象は `--track 名前`(部分一致)、`--port 番号`、`--plugin synth|fx`(1 つしかないとき)で選ぶ。候補が複数あるとエラーで一覧が出る。
-3. プラグインの画面(表示だけ)には制御ポート・トラック名・プリセット名・最近のコマンド・変えたパラメータが出る。
+2. 対象は `--name 名前`(完全一致、大文字小文字は区別しない)、`--track トラック名`(部分一致)、`--plugin synth|fx`、
+   `--port 番号` で選ぶ。組み合わせて絞り込める(例: `--track Bass --plugin fx`)。候補が複数あるとエラーで一覧と絞り方が出る。
+3. **同じトラックに同じプラグインを複数挿したとき**(サイドチェイン用とテープストップ用の MPS FX など)は、
+   トラック名とプラグインでは区別できない。`--port` で 1 つずつ選んで名前を付け、以後は `--name` で呼ぶ:
+   ```bash
+   $CTL --port 47800 rename pump        # 同じ名前が使われていれば断られる(--force で強制)。"" で名前を消す
+   $CTL --port 47802 rename tapestop
+   $CTL --name pump set pump_depth=0.8
+   ```
+   名前はプラグインの状態に保存されるので、DAW のプロジェクトを開き直しても残る。どのポートがどれかは、
+   プラグインの画面のポート表示と `list` を照らし合わせるか、`play` で鳴らして確かめる。
+4. プラグインの画面(表示だけ)には制御ポート・トラック名・名前・プリセット名・最近のコマンド・変えたパラメータが出る。
    ユーザーに「どのトラックか」を聞くときはこの画面を見てもらう。
 
 ## 2. 基本の操作
@@ -36,6 +46,7 @@ $CTL --track Bass state > bass.json                 # 状態を保存 / load-sta
   ユーザーが手で調整している最中に上書きしないよう、変える前に `get --changed` で今の値を見る。
 - Python から使うなら `sys.path.insert(0, "${CLAUDE_SKILL_DIR}/scripts")` のあと `from mps_ctl import connect`
   → `bass = connect(track='Bass'); bass.load_preset('Acid 303'); bass.set(resonance=4); bass.play(50)`。
+  名前で呼ぶなら `connect(name='pump')`、名前を付けるなら `client.set_name('pump')`。
 - 生のプロトコル・全コマンド・`render` の引数: [references/protocol.md](references/protocol.md)
 
 ## 3. 音作りの手順

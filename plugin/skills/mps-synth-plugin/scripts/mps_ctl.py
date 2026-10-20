@@ -2,10 +2,10 @@
 """MPS Synth / MPS FX を外部(AI・スクリプト)から操作するクライアント。標準ライブラリだけで動く。
 
 DAW に挿した各インスタンスは 127.0.0.1 の TCP ポート(47800〜)で 1 行 1 JSON の制御サーバーを開き、
-~/.mps-plugins/instances/*.json(Windows は %LOCALAPPDATA%\\mps-plugins\\instances)に自分のポートとトラック名を書く。
+~/.mps-plugins/instances/*.json(Windows は %LOCALAPPDATA%\\mps-plugins\\instances)に自分のポート・トラック名・名前を書く。
 
 CLI:
-  mps_ctl.py list                                   # 起動中のインスタンス(ポート・プラグイン・トラック名)
+  mps_ctl.py list                                   # 起動中のインスタンス(ポート・プラグイン・トラック名・名前)
   mps_ctl.py --track Bass info
   mps_ctl.py --track Bass presets
   mps_ctl.py --track Bass load "Slap Bass" cutoff=900
@@ -16,7 +16,10 @@ CLI:
   mps_ctl.py --track Bass render out.wav --notes '[[0,0.25,41,1]]' --bpm 160
   mps_ctl.py --track Bass state > bass.json ; mps_ctl.py --track Bass load-state bass.json
   mps_ctl.py --port 47801 raw '{"cmd":"help"}'
-インスタンスの指定: --port N / --track 名前(部分一致)/ --plugin synth|fx(1 つしかないとき)。
+  mps_ctl.py --track Bass --plugin fx rename pump   # インスタンスに名前を付ける(状態に保存される。"" で消す)
+  mps_ctl.py --name pump set pump_depth=0.8         # 名前で呼び出す
+インスタンスの指定(組み合わせて絞り込める): --name 名前(完全一致、大文字小文字は区別しない)/ --track トラック名(部分一致)/
+  --plugin synth|fx / --port N。同じトラックに同じプラグインを複数挿したときは、名前を付けて --name で呼ぶ。
 
 Python:
   from mps_ctl import connect
@@ -24,6 +27,7 @@ Python:
   bass.load_preset('Slap Bass', cutoff=900)
   bass.set(drive=5.0, drive_type='diode')
   bass.play(41, duration=0.3)
+  pump = connect(name='pump')
 """
 import argparse, glob, json, os, socket, sys
 
@@ -105,6 +109,9 @@ class Client:
     def info(self):
         return self.request('info')
 
+    def set_name(self, name):
+        return self.request('set_name', name=name)
+
     def params(self):
         return self.request('list_params')
 
@@ -149,19 +156,39 @@ class Client:
         return self.request('render', out=os.path.abspath(out), notes=notes, **kw)
 
 
-def connect(port=None, track=None, plugin=None, host='127.0.0.1'):
-    if port:
-        return Client(int(port), host)
+def _describe(i):
+    name = i.get('name') or '-'
+    return f"port {i['port']} {i.get('plugin_id')} track={i.get('track', '')!r} name={name!r}"
+
+
+def find_instances(track=None, plugin=None, name=None):
     found = instances()
+    if name is not None:
+        found = [i for i in found if str(i.get('name', '')).lower() == name.lower()]
     if track is not None:
         found = [i for i in found if track.lower() in str(i.get('track', '')).lower()]
     if plugin is not None:
         found = [i for i in found if i.get('plugin_id') == plugin or i.get('plugin') == plugin]
+    return found
+
+
+def connect(port=None, track=None, plugin=None, name=None, host='127.0.0.1'):
+    if port:
+        return Client(int(port), host)
+    found = find_instances(track, plugin, name)
     if not found:
-        raise MpsError('インスタンスが見つかりません(mps_ctl.py list で確認。DAW にプラグインを挿しているか)')
+        cond = ', '.join(f'{k}={v!r}' for k, v in (('name', name), ('track', track), ('plugin', plugin)) if v is not None)
+        raise MpsError(f'条件({cond or "指定なし"})に合うインスタンスがありません。'
+                       'mps_ctl.py list で起動中のインスタンスを確かめてください(DAW にプラグインが挿さっているか)')
     if len(found) > 1:
-        desc = ', '.join(f"{i['port']}:{i.get('plugin_id')}:{i.get('track', '')}" for i in found)
-        raise MpsError(f'候補が複数あります({desc})。--port か --track で絞ってください')
+        desc = '\n  '.join(_describe(i) for i in found)
+        hint = []
+        if plugin is None and len({i.get('plugin_id') for i in found}) > 1:
+            hint.append('--plugin synth|fx')
+        if name is None:
+            hint.append('--name 名前(名前がなければ --port で選んで rename で付ける)')
+        hint.append('--port 番号')
+        raise MpsError(f'候補が {len(found)} つあります:\n  {desc}\n絞り込むには ' + ' か '.join(hint) + ' を指定してください')
     return Client(found[0]['port'], host)
 
 
@@ -183,6 +210,7 @@ def main(argv=None):
     ap.add_argument('--port', type=int)
     ap.add_argument('--track')
     ap.add_argument('--plugin')
+    ap.add_argument('--name')
     ap.add_argument('command')
     ap.add_argument('args', nargs='*')
     ap.add_argument('--velocity', type=float, default=1.0)
@@ -193,16 +221,28 @@ def main(argv=None):
     ap.add_argument('--length', type=float)
     ap.add_argument('--unit', choices=['seconds', 'beats'])
     ap.add_argument('--input')
+    ap.add_argument('--force', action='store_true', help='rename: 同じ名前のインスタンスがあっても付ける')
     a = ap.parse_args(argv)
 
     if a.command == 'list':
         for i in instances():
-            print(f"{i['port']:6d}  {i.get('plugin', i.get('plugin_id')):10s}  track={i.get('track', '')!r}  pid={i.get('pid')}")
+            print(f"{i['port']:6d}  {i.get('plugin', i.get('plugin_id')):10s}  track={i.get('track', '')!r}  "
+                  f"name={(i.get('name') or '-')!r}  pid={i.get('pid')}")
         return 0
-    c = connect(a.port, a.track, a.plugin)
+    c = connect(a.port, a.track, a.plugin, a.name)
     cmd, args = a.command, a.args
     if cmd == 'info':
         r = c.info()
+    elif cmd == 'rename':
+        if len(args) != 1:
+            raise SystemExit('rename には新しい名前を 1 つ指定してください(消すときは "")')
+        new_name = args[0]
+        if new_name and not a.force:
+            same = [i for i in find_instances(name=new_name) if i['port'] != c.port]
+            if same:
+                raise MpsError(f'名前 {new_name!r} はすでに使われています({_describe(same[0])})。'
+                               '別の名前にするか、--force で付けてください')
+        r = c.set_name(new_name)
     elif cmd == 'params':
         r = c.params()
     elif cmd == 'presets':

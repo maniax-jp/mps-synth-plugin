@@ -72,7 +72,7 @@ json ParamStore::valuesJson(bool onlyChanged) const {
 }
 
 json ParamStore::stateJson() const {
-    return json{{"format", "mps-state"}, {"version", 1}, {"plugin", spec_.id}, {"preset", presetName()},
+    return json{{"format", "mps-state"}, {"version", 1}, {"plugin", spec_.id}, {"name", instanceName()}, {"preset", presetName()},
                 {"params", valuesJson(false)}};
 }
 
@@ -83,6 +83,10 @@ bool ParamStore::loadState(const json& state, bool markDirty) {
     resetDefaults(markDirty);
     applyJson(*params, markDirty, nullptr);
     if (state.contains("preset") && state["preset"].is_string()) setPresetName(state["preset"].get<std::string>());
+    if (state.contains("name") && state["name"].is_string()) {
+        std::string err, n = state["name"].get<std::string>();
+        if (validInstanceName(n, err)) setInstanceName(n);
+    }
     return true;
 }
 
@@ -96,6 +100,27 @@ bool ParamStore::loadPreset(const std::string& name, bool markDirty) {
         }
     }
     return false;
+}
+
+std::string ParamStore::instanceName() const {
+    std::lock_guard<std::mutex> lk(nameMutex_);
+    return instanceName_;
+}
+void ParamStore::setInstanceName(const std::string& n) {
+    std::lock_guard<std::mutex> lk(nameMutex_);
+    instanceName_ = n;
+}
+bool ParamStore::validInstanceName(const std::string& n, std::string& err) {
+    if (n.size() > 64) {
+        err = "name is too long (64 bytes max)";
+        return false;
+    }
+    for (unsigned char c : n)
+        if (c < 0x20 || c == 0x7f) {
+            err = "name must not contain control characters";
+            return false;
+        }
+    return true;
 }
 
 std::string ParamStore::presetName() const {
@@ -312,7 +337,8 @@ RenderResult render(const PluginSpec& spec, const ParamStore& params, const Rend
 json commandHelp() {
     return json::array({
         {{"cmd", "help"}, {"desc", "コマンド一覧"}},
-        {{"cmd", "info"}, {"desc", "プラグイン名・ポート・トラック名・サンプルレート・テンポ・プリセット名"}},
+        {{"cmd", "info"}, {"desc", "プラグイン名・インスタンスの名前・ポート・トラック名・サンプルレート・テンポ・プリセット名"}},
+        {{"cmd", "set_name"}, {"args", "name"}, {"desc", "インスタンスに名前を付ける(空文字で消す)。状態に保存され、レジストリにも載る"}},
         {{"cmd", "list_params"}, {"desc", "全パラメータの定義と現在値(key, name, unit, scale, min, max, default, value, labels, help)"}},
         {{"cmd", "get"}, {"args", "keys?: [key]"}, {"desc", "現在値(プレーン値。enum/bool はラベル)。changed_only: true で既定値から変えたものだけ"}},
         {{"cmd", "set"}, {"args", "params: {key: 値 or ラベル}, normalized?: bool"}, {"desc", "値を変えてホストに通知(DAW の表示と自動化記録にも反映)"}},
@@ -367,6 +393,7 @@ std::string handleCommand(ParamStore& store, const std::string& line, const Live
             result["plugin_id"] = spec.id;
             result["version"] = kVersion;
             result["preset"] = store.presetName();
+            result["name"] = store.instanceName();
         } else if (cmd == "list_params") {
             result = paramList(store);
         } else if (cmd == "get") {
@@ -397,6 +424,12 @@ std::string handleCommand(ParamStore& store, const std::string& line, const Live
             for (auto it = req["params"].begin(); it != req["params"].end(); ++it)
                 if (all.contains(it.key())) changed[it.key()] = all[it.key()];
             result = changed;
+        } else if (cmd == "set_name") {
+            if (!req.contains("name") || !req["name"].is_string()) throw std::runtime_error("set_name needs name (string)");
+            std::string n = req["name"].get<std::string>(), err;
+            if (!ParamStore::validInstanceName(n, err)) throw std::runtime_error(err);
+            store.setInstanceName(n);
+            result = {{"name", n}};
         } else if (cmd == "list_presets") {
             result = json::array();
             for (const auto& p : *spec.presets) result.push_back({{"name", p.name}, {"desc", p.desc}});

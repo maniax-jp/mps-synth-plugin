@@ -25,9 +25,9 @@ int main(int argc, char** argv) {
     st.set(mps::synthSpec().find("drive"), 5, false);
     for (int i = 0; i < st.size(); ++i)
         ctrl->setParamNormalized(i, mps::toNorm((*mps::synthSpec().params)[i], st.get(i)));
-    ctrl->setStatus({{"port", 47800}, {"track", "Bass 1"}, {"preset", "Slap Bass *"}, {"bpm", 160.0}, {"playing", true},
+    ctrl->setStatus({{"port", 47800}, {"track", "Bass"}, {"name", "bass-synth"}, {"preset", "Slap Bass *"}, {"bpm", 160.0}, {"playing", true},
                      {"midi_notes", 128}, {"commands", 5},
-                     {"log", {"21:04:12  set", "21:04:11  load_preset", "21:04:09  list_params"}}});
+                     {"log", {"21:04:12  set", "21:04:11  load_preset", "21:04:09  set_name"}}});
     CRect r(0, 0, 560, 400);
     auto* view = new mpsvst::StatusView(r, ctrl);
     auto off = COffscreenContext::create({r.getWidth(), r.getHeight()}, 1.0);

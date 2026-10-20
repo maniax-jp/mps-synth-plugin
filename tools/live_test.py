@@ -5,6 +5,7 @@
 
 確かめること: レジストリにトラック名つきで載る / load_preset・set がホストへ通知される / play で音が出る /
 render で WAV が書ける / 状態 JSON に反映される / 終了でレジストリが消える。
+同じトラックに MPS FX を 2 つ動かし、名前を付けて呼び分けられること(重複した名前は断る、名前は状態に保存される)も確かめる。
 """
 import os, subprocess, sys, tempfile, time, wave
 
@@ -79,6 +80,37 @@ def main():
     check('editor: yes' in text, 'controller creates the status editor')
     check(peak_after(out, 0.0) > 0.1, 'play produced sound in the host output')
     check(not mps_ctl.instances(clean=False), 'registry file removed on exit')
+
+    # ---- 同じトラックに同じプラグインを 2 つ: 名前で呼び分ける
+    ctl = [sys.executable, os.path.join(HERE, '..', 'plugin', 'skills', 'mps-synth-plugin', 'scripts', 'mps_ctl.py')]
+    procs, logs = [], []
+    for k in range(2):
+        lp = os.path.join(tmp, f'fx{k}.log')
+        logs.append(lp)
+        procs.append(subprocess.Popen([host, vst3, 'MPS FX', '4', os.path.join(tmp, f'fx{k}.wav'), '--track', 'Bus'],
+                                      stdout=open(lp, 'w'), stderr=subprocess.STDOUT))
+    for _ in range(50):
+        if len(mps_ctl.instances()) == 2:
+            break
+        time.sleep(0.1)
+    try:
+        mps_ctl.connect(track='Bus', plugin='fx')
+        check(False, 'two instances on one track are reported as ambiguous')
+    except mps_ctl.MpsError as e:
+        check('--name' in str(e) and '--port' in str(e), 'ambiguity error suggests --name / --port')
+    ports = sorted(i['port'] for i in mps_ctl.instances())
+    r1 = subprocess.run(ctl + ['--port', str(ports[0]), 'rename', 'pump'], capture_output=True, text=True)
+    r2 = subprocess.run(ctl + ['--port', str(ports[1]), 'rename', 'pump'], capture_output=True, text=True)
+    r3 = subprocess.run(ctl + ['--port', str(ports[1]), 'rename', 'tapestop'], capture_output=True, text=True)
+    check(r1.returncode == 0 and r2.returncode != 0 and r3.returncode == 0, 'rename refuses a duplicate name')
+    names = {i['port']: i.get('name') for i in mps_ctl.instances()}
+    check(names == {ports[0]: 'pump', ports[1]: 'tapestop'}, f'registry carries the names: {names}')
+    with mps_ctl.connect(name='PUMP') as c1:
+        check(c1.port == ports[0] and c1.load_preset('Pump 1/4').get('pump_depth') == 1.0, 'connect by name (case-insensitive)')
+    for pr in procs:
+        pr.wait(timeout=30)
+    states = ''.join(open(lp).read() for lp in logs)
+    check('"name":"pump"' in states and '"name":"tapestop"' in states, 'names are saved in the state')
     print('logs:', tmp)
     sys.exit(1 if fails else 0)
 
