@@ -58,6 +58,24 @@ jobs:
           codesign --force --deep --sign - build/VST3/Release/MPS.vst3
           codesign --verify --deep --strict build/VST3/Release/MPS.vst3
 
+      - name: Check the bundle manifests (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: |
+          VERSION=$(sed -n 's/.*kVersion = "\([^"]*\)".*/\1/p' core/engine.h)
+          grep -q "\"Version\": \"$VERSION\"" build/VST3/Release/MPS.vst3/Contents/Resources/moduleinfo.json
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            P=build/VST3/Release/MPS.vst3/Contents/Info.plist
+            plutil -p "$P"
+            test "$(plutil -extract CFBundleShortVersionString raw "$P")" = "$VERSION"
+            test "$(plutil -extract CFBundleVersion raw "$P")" = "$VERSION"
+            test "$(plutil -extract CFBundleIdentifier raw "$P")" = "me.maniax.mps"
+            test "$(plutil -extract CFBundlePackageType raw "$P")" = "BNDL"
+          else
+            DLL=$(find build/VST3/Release/MPS.vst3 -path "*x86_64-win*" -name "MPS.vst3" -type f)
+            powershell -NoProfile -Command "(Get-Item '$DLL').VersionInfo | Format-List CompanyName,FileDescription,FileVersion,ProductVersion"
+            test "$(powershell -NoProfile -Command "(Get-Item '$DLL').VersionInfo.ProductVersion" | tr -d '\r')" = "$VERSION"
+          fi
+
       - name: Live control test (host + control server)
         run: python3 tools/live_test.py build || python tools/live_test.py build
 
