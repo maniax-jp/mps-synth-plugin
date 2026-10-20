@@ -50,6 +50,6 @@ const PluginSpec& synthSpec();
 const PluginSpec& fxSpec();
 const PluginSpec* specById(const std::string& id);
 
-constexpr const char* kVersion = "0.1.0";
+constexpr const char* kVersion = "0.2.0";
 
 }  // namespace mps
