@@ -65,6 +65,10 @@ jobs:
         if: runner.os == 'Linux'
         run: python3 tools/gen_skill_refs.py build/mps_render --check
 
+      - name: Check that the versions match (Linux)
+        if: runner.os == 'Linux'
+        run: python3 tools/check_versions.py
+
       - name: Package
         run: |
           mkdir -p dist/MPS

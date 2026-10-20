@@ -1,5 +1,6 @@
 {
   "name": "mps-synth",
+  "version": "0.1.0",
   "description": "VST3 プラグイン MPS Synth / MPS FX を AI から操作するスキル",
   "author": {
     "name": "Maniax"
