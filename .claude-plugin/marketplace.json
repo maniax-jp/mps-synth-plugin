@@ -1,0 +1,12 @@
+{
+  "name": "maniax-music",
+  "description": "Maniax の音楽制作ツール(VST3 プラグイン MPS Synth / MPS FX を AI から操作するスキル)",
+  "owner": { "name": "Maniax" },
+  "plugins": [
+    {
+      "name": "mps-synth",
+      "source": "./plugin",
+      "description": "VST3 プラグイン MPS Synth / MPS FX を AI から操作する(トラック名でインスタンスを選び、プリセット読み込み・値の変更・試し鳴らし・WAV 書き出し)"
+    }
+  ]
+}

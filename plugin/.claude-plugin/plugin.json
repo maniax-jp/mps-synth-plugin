@@ -1,0 +1,9 @@
+{
+  "name": "mps-synth",
+  "description": "VST3 プラグイン MPS Synth / MPS FX を AI から操作するスキル",
+  "author": {
+    "name": "Maniax"
+  },
+  "homepage": "https://github.com/maniax-jp/mps-synth-plugin",
+  "license": "MIT"
+}
