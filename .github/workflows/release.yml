@@ -4,6 +4,7 @@ name: release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:   # 手で実行すると、Release を作らずに配布する zip の確認だけする
 
 jobs:
   build:
@@ -15,15 +16,21 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
+          pattern: "*.zip"
           path: artifacts
           merge-multiple: true
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ls -l artifacts
-          gh release create "${GITHUB_REF_NAME}" artifacts/*.zip --repo "${GITHUB_REPOSITORY}" \
+          set -e
+          files=$(find artifacts -name "*.zip" -type f | sort)
+          echo "$files"
+          for f in $files; do unzip -l "$f" | tail -n +1 | head -20; done
+          test $(echo "$files" | wc -l) -eq 4
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then echo "タグではないので Release は作らない"; exit 0; fi
+          gh release create "${GITHUB_REF_NAME}" $files --repo "${GITHUB_REPOSITORY}" \
             --title "MPS Synth / MPS FX ${GITHUB_REF_NAME#v}" \
             --notes "VST3 プラグイン MPS Synth / MPS FX。インストール方法は README を見てください。macOS 版は Apple Silicon と Intel のユニバーサルです。"
