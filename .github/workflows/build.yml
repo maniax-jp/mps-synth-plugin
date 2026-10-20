@@ -69,7 +69,6 @@ jobs:
         run: |
           mkdir -p dist/MPS
           cp -R build/VST3/Release/MPS.vst3 dist/MPS/
-          cp build/mps_render dist/MPS/ 2>/dev/null || cp build/Release/mps_render.exe dist/MPS/
           cp README.md dist/MPS/
           # スキル(claude.ai にそのままアップロードできる形: mps-synth-plugin/SKILL.md が最上位)
           rm -rf plugin/skills/mps-synth-plugin/scripts/__pycache__

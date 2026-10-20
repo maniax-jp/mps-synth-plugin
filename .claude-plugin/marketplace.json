@@ -1,5 +1,5 @@
 {
-  "name": "maniax-music",
+  "name": "maniax-jp-mps-synth-plugin",
   "description": "Maniax の音楽制作ツール(VST3 プラグイン MPS Synth / MPS FX を AI から操作するスキル)",
   "owner": { "name": "Maniax" },
   "plugins": [

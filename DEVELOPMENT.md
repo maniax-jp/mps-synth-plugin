@@ -9,7 +9,7 @@
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release     # Windows は -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ```
-- できるもの: `build/VST3/Release/MPS.vst3`(プラグイン)、`build/mps_render`(DAW なしで書き出す CLI)、
+- できるもの: `build/VST3/Release/MPS.vst3`(プラグイン)、`build/mps_render`(DAW のない環境でのデバッグ用 CLI。配布物には入れない)、
   `build/bin/Release/mps_testhost`(テスト用ホスト)。
 - ビルドの最後に VST3 SDK の validator が自動で走る(94 項目。`SMTG_RUN_VST_VALIDATOR`)。
 - **macOS**: 既定で `arm64;x86_64` のユニバーサル(`CMAKE_OSX_ARCHITECTURES`、デプロイ先 10.15)。Ninja か Makefile で生成する
@@ -35,7 +35,7 @@ tools/      mps_render(CLI)、testhost(テスト用ホスト)、gui_snapshot(GUI
 docs/       README の画像
 plugin/     Claude Code のプラグイン「mps-synth」(.claude-plugin/plugin.json)と AI 用スキル skills/mps-synth-plugin/
             (SKILL.md、scripts/mps_ctl.py、references/)
-.claude-plugin/marketplace.json   マーケットプレイス「maniax-music」(plugin/ を公開する)
+.claude-plugin/marketplace.json   マーケットプレイス「maniax-jp-mps-synth-plugin」(plugin/ を公開する)
 ```
 操作のクライアント `mps_ctl.py` はスキルの中(`plugin/skills/mps-synth-plugin/scripts/`)にあり、スキルと一緒に配る。
 
@@ -72,11 +72,18 @@ ninja -C build mps_gui_snapshot && build/bin/Release/mps_gui_snapshot gui.png   
 ```
 - `live_test.py`: レジストリにトラック名つきで載る / `load_preset`・`set` がホストへ通知される / `play` で音が出る / `render` / 状態 JSON /
   知らないキーのエラー / 終了でレジストリが消える。
+- `mps_render`: プラグインと同じ DSP で WAV を書き出す。DAW のない環境で音を確かめるときに使う。
+  ```bash
+  build/mps_render --list-presets synth
+  echo '{"plugin":"synth","preset":"Psy Kick","notes":[[0,0.25,32,1]],"out":"kick.wav"}' | build/mps_render -
+  echo '{"plugin":"fx","preset":"Tape Stop 2 steps","input":"bass.wav","automation":[[1.5,{"tapestop":"on"}]],"bpm":160,"out":"stop.wav"}' | build/mps_render -
+  ```
+  SPEC は 1 件のオブジェクトか配列。`notes` は `[t, dur, note, vel]`(`"unit":"beats"` で拍単位)、`params` で上書き、`automation` で途中の値を変える。
 - スペクトル重心などを比べるときは書き出しを 32bit float(`"bits": 32`)にする。24bit の量子化ノイズで値が大きく振れる。
 
 ## CI とリリース
 - `.github/workflows/build.yml`: macOS(Apple Silicon ランナー、ユニバーサル)/ Windows x64 / Linux x64 でビルド → validator →
   アーキテクチャ確認とアドホック署名(macOS)→ `live_test.py` → スキルの references が最新か(Linux)→ 成果物 `MPS-<os>.zip`
-  (MPS.vst3、mps_render、README、`mps-synth-plugin-skill.zip`)。別のジョブで `claude plugin validate` を通す。
+  (MPS.vst3、README、`mps-synth-plugin-skill.zip`。mps_render はデバッグ用なので入れない)。別のジョブで `claude plugin validate` を通す。
 - `v*` のタグを push すると、同じビルドの zip で GitHub Release を作る(`.github/workflows/release.yml`。例: `git tag v0.1.0 && git push origin v0.1.0`)。
   バージョンは `core/engine.h` の `kVersion` と `CMakeLists.txt` の `project(VERSION)` をそろえる。

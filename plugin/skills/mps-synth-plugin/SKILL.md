@@ -1,11 +1,11 @@
 ---
 name: mps-synth-plugin
-description: VST3 プラグイン MPS Synth(音源)/ MPS FX(エフェクト)を AI から操作するときに使う。DAW(REAPER など)のトラックに挿したインスタンスをトラック名で選び、プリセットの読み込み、パラメータの変更、試し鳴らし、WAV 書き出し、状態の保存と復元を GUI を触らずに行う。キック、ハット、クラップ、スラップ/主軸ベース、アシッド、スーパーソウ、wub、矩形波プラック、FM ベル、フォルマント声などの音作り、テープストップ・サイドチェイン・Disperser の設定、DAW なしで同じ音を書き出す mps_render の使い方も含む。
+description: VST3 プラグイン MPS Synth(音源)/ MPS FX(エフェクト)を AI から操作するときに使う。DAW(REAPER など)のトラックに挿したインスタンスをトラック名で選び、プリセットの読み込み、パラメータの変更、試し鳴らし、WAV 書き出し、状態の保存と復元を GUI を触らずに行う。キック、ハット、クラップ、スラップ/主軸ベース、アシッド、スーパーソウ、wub、矩形波プラック、FM ベル、フォルマント声などの音作り、テープストップ・サイドチェイン・Disperser の設定も含む。
 ---
 
 # MPS Synth / MPS FX を AI から操作する
 
-MPS Synth / MPS FX は、DAW に挿したインスタンスごとに 127.0.0.1 で制御サーバーを開く VST3 プラグイン(製造元 Maniax)。
+MPS Synth / MPS FX は、DAW に挿したインスタンスごとに 127.0.0.1 で制御サーバーを開く VST3 プラグイン。
 このスキルの `scripts/mps_ctl.py`(Python 3、標準ライブラリだけ)で操作する。
 
 ```bash
@@ -63,21 +63,12 @@ $CTL --track Bass state > bass.json                 # 状態を保存 / load-sta
   もう一度使うときは一度 off に戻す。`tapestop_auto=on` なら止まりきったあと元の音に戻る。
 - 他に Phaser、Disperser、歪み、`width` と `bass_mono`、`mix`、`gain`。
 
-## 4. DAW なしで同じ音を書き出す(mps_render)
-プラグインと同じ DSP の CLI `mps_render`(プラグインの配布 zip に入っている)。場所はユーザーに確かめるか、環境変数 `MPS_RENDER` を見る。
-```bash
-echo '{"plugin":"synth","preset":"Tech Kick","unit":"beats","bpm":152.5,"notes":[[0,1,36,1],[1,1,36,1]],"out":"kick.wav"}' | "$MPS_RENDER" -
-echo '{"plugin":"fx","preset":"Pump 1/4","input":"bass.wav","bpm":160,"out":"bass_pumped.wav"}' | "$MPS_RENDER" -
-"$MPS_RENDER" --list-presets synth
-```
-配列を渡すとまとめて書き出す。`params`(上書き)、`automation: [[t, {key: 値}]]` も使える。
-
-## 5. DAW 側の操作(REAPER)
+## 4. DAW 側の操作(REAPER)
 トラックを作る・プラグインを挿す・ノートを打つのは DAW の仕事(REAPER なら ReaScript)。挿すときの名前は
 `VST3i: MPS Synth (Maniax)` と `VST3: MPS FX (Maniax)`。挿したらトラック名を付けてから、この制御サーバーで音色を送る。
 DAW のオートメーションでも全パラメータを動かせる(表示名は parameters.md の「名前」)。
 
-## 6. うまくいかないとき
+## 5. うまくいかないとき
 - `list` に出ない: プラグインの画面に「制御サーバー: 無効」と出ていないか見てもらう(環境変数 `MPS_CTL_DISABLE=1` か、
   47800〜47899 が全部使われている)。
 - `connection refused`: DAW がプラグインを外した・プロジェクトを閉じた。`list` からやり直す。
