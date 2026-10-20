@@ -35,10 +35,19 @@ if(MPS_BUILD_GUI)
     target_link_libraries(MPS PRIVATE vstgui_support)
     target_compile_definitions(MPS PRIVATE MPS_WITH_GUI=1)
 endif()
+# マニフェスト類の値(moduleinfo.json のバージョンは core/engine.h の kVersion から入る)
+set(MPS_VENDOR "Maniax")
+set(MPS_BUNDLE_ID "me.maniax.mps")
 if(SMTG_MAC)
     smtg_target_set_bundle(MPS
-        BUNDLE_IDENTIFIER "me.maniax.mps"
-        COMPANY_NAME "Maniax")
+        BUNDLE_IDENTIFIER "${MPS_BUNDLE_ID}"
+        COMPANY_NAME "${MPS_VENDOR}")
+    # SDK は Xcode ジェネレーターのときしか Info.plist の中身(ID・バージョン・種類)を設定しないので、自前の雛形を使う
+    configure_file(Info.plist.in ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
+    set_target_properties(MPS PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
+elseif(SMTG_WIN)
+    configure_file(version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
+    target_sources(MPS PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
 endif()
 
 # SMTG_RUN_VST_VALIDATOR(既定 ON)のとき、SDK がビルド後に validator で MPS.vst3 を検査する
