@@ -1,0 +1,96 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:   # release.yml から呼ぶ
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Apple Silicon ランナーでユニバーサル・バイナリ(arm64 + x86_64)を作り、arm64 で validator を通す
+          - os: macos-14
+            name: macos-universal
+            configure: -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          - os: windows-2022
+            name: windows-x64
+            configure: -G "Visual Studio 17 2022" -A x64
+          - os: ubuntu-24.04
+            name: linux-x64
+            configure: -G Ninja
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev \
+            libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev \
+            libxcb-keysyms1-dev libpango1.0-dev
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja || true
+
+      - name: Configure
+        run: cmake -S . -B build ${{ matrix.configure }} -DCMAKE_BUILD_TYPE=Release
+      - name: Build (VST3 validator runs as a post-build step)
+        run: cmake --build build --config Release --parallel
+
+      - name: Check architectures and sign (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          BIN=build/VST3/Release/MPS.vst3/Contents/MacOS/MPS
+          lipo -archs "$BIN"
+          lipo -archs "$BIN" | grep -q arm64
+          lipo -archs "$BIN" | grep -q x86_64
+          lipo -archs build/mps_render | grep -q arm64
+          codesign --force --deep --sign - build/VST3/Release/MPS.vst3
+          codesign --verify --deep --strict build/VST3/Release/MPS.vst3
+
+      - name: Live control test (host + control server)
+        run: python3 tools/live_test.py build || python tools/live_test.py build
+
+      - name: Check the generated skill references (Linux)
+        if: runner.os == 'Linux'
+        run: python3 tools/gen_skill_refs.py build/mps_render --check
+
+      - name: Package
+        run: |
+          mkdir -p dist/MPS
+          cp -R build/VST3/Release/MPS.vst3 dist/MPS/
+          cp build/mps_render dist/MPS/ 2>/dev/null || cp build/Release/mps_render.exe dist/MPS/
+          cp README.md dist/MPS/
+          # スキル(claude.ai にそのままアップロードできる形: mps-synth-plugin/SKILL.md が最上位)
+          rm -rf plugin/skills/mps-synth-plugin/scripts/__pycache__
+          (cd plugin/skills && cmake -E tar cf ../../dist/MPS/mps-synth-plugin-skill.zip --format=zip mps-synth-plugin)
+          (cd dist && cmake -E tar cf "MPS-${{ matrix.name }}.zip" --format=zip MPS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MPS-${{ matrix.name }}
+          path: dist/MPS-${{ matrix.name }}.zip
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: mps-synth-plugin-skill
+          path: dist/MPS/mps-synth-plugin-skill.zip
+
+  validate-claude-plugin:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate the marketplace and the skill plugin
+        run: |
+          npm install -g @anthropic-ai/claude-code >/dev/null 2>&1
+          claude plugin validate ./
+          claude plugin validate ./plugin
