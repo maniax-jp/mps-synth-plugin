@@ -74,15 +74,16 @@ jobs:
           rm -rf plugin/skills/mps-synth-plugin/scripts/__pycache__
           (cd plugin/skills && cmake -E tar cf ../../dist/MPS/mps-synth-plugin-skill.zip --format=zip mps-synth-plugin)
           (cd dist && cmake -E tar cf "MPS-${{ matrix.name }}.zip" --format=zip MPS)
-      - uses: actions/upload-artifact@v4
+      # 作った zip をそのまま成果物にする(archive: false。zip の中に zip が入らないように。名前はファイル名になる)
+      - uses: actions/upload-artifact@v7
         with:
-          name: MPS-${{ matrix.name }}
           path: dist/MPS-${{ matrix.name }}.zip
-      - uses: actions/upload-artifact@v4
+          archive: false
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Linux'
         with:
-          name: mps-synth-plugin-skill
           path: dist/MPS/mps-synth-plugin-skill.zip
+          archive: false
 
   validate-claude-plugin:
     runs-on: ubuntu-24.04
