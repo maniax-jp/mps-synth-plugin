@@ -10,7 +10,7 @@ if(APPLE)
     endif()
 endif()
 
-project(mps_plugins VERSION 0.1.0 LANGUAGES C CXX)
+project(mps_plugins VERSION 0.2.0 LANGUAGES C CXX)
 # VSTGUI と SDK の macOS 部分は Objective-C++ を使う。サブディレクトリだけで有効にすると Ninja / Makefile の生成で
 # CMAKE_OBJCXX_COMPILE_OBJECT が見つからないので、最上位で有効にする
 if(APPLE)
