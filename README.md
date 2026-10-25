@@ -47,7 +47,7 @@ Claude に操作方法を教えるスキル `mps-synth-plugin` を用意して�
 使い方の例(Claude に頼むとこの操作をしてくれます):
 ```bash
 python3 mps_ctl.py list                                  # 47800  MPS Synth  track='Bass'
-python3 mps_ctl.py --track Bass load "Slap Bass"
+python3 mps_ctl.py --track Bass load "Wavetable Bass"
 python3 mps_ctl.py --track Bass set cutoff=900 drive=5
 python3 mps_ctl.py --track Bass play 41 --duration 0.3
 ```

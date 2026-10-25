@@ -33,7 +33,7 @@ CTL="python3 ${CLAUDE_SKILL_DIR}/scripts/mps_ctl.py"
 ## 2. 基本の操作
 ```bash
 $CTL --track Bass presets                          # プリセット一覧
-$CTL --track Bass load "Slap Bass"                  # 読み込み(続けて key=値 で上書きできる)
+$CTL --track Bass load "Wavetable Bass"                  # 読み込み(続けて key=値 で上書きできる)
 $CTL --track Bass set cutoff=900 drive_type=diode drive=5
 $CTL --track Bass get --changed                     # 初期値から変えた値だけ
 $CTL --track Bass params                            # 全パラメータの範囲・単位・選択肢・説明

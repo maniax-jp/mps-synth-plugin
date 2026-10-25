@@ -7,7 +7,7 @@ namespace mps {
 static const std::vector<Preset> kSynthPresets = {
     {"Init", "初期値(のこぎり 1 本)", R"({})"},
     // ---------------------------------------------------------------- ドラム
-    {"Psy Kick", "短く、音程が一気に落ちるテックコア向けのキック(160 BPM 前後)。G#1(MIDI 32)で鳴らす",
+    {"Short Kick", "短く、音程が一気に落ちるテックコア向けのキック(160 BPM 前後)。G#1(MIDI 32)で鳴らす",
      R"({"osc_a_wave":"sine","pitch_env1_hz":260,"pitch_env1_time":0.018,"pitch_env2_hz":1400,"pitch_env2_time":0.0022,
         "amp_attack":0.0005,"amp_hold":0.13,"amp_decay":0.025,"amp_sustain":0,"one_shot":"on","vel_to_amp":0,
         "click_level":0.35,"click_time":0.0025,"click_hp":2500,"drive_type":"tanh","drive":1.8})"},
@@ -47,7 +47,7 @@ static const std::vector<Preset> kSynthPresets = {
      R"({"osc_a_wave":"sine","pitch_env1_hz":3000,"pitch_env1_time":0.02,"amp_attack":0.0005,"amp_decay":0.04,
         "amp_sustain":0,"one_shot":"on","vel_to_amp":0.3})"},
     // ---------------------------------------------------------------- ベース
-    {"Slap Bass", "のこぎり + 複雑な倍音のウェーブテーブル x5 → ローパスを速いエンベロープで閉じる → 非対称の歪み。ベロシティでアクセント(フィルターの開き)",
+    {"Wavetable Bass", "のこぎり + 複雑な倍音のウェーブテーブル x5 → ローパスを速いエンベロープで閉じる → 非対称の歪み。ベロシティでアクセント(フィルターの開き)",
      R"({"osc_a_wave":"saw","osc_a_level":0.5,"osc_b_wave":"monster","osc_b_level":0.8,"unison":5,"unison_osc":"b","detune":0.14,
         "filter_type":"lp12","cutoff":1200,"resonance":1.1,"fenv_amount":12000,"fenv_decay":0.05,"vel_to_filter":0.42,
         "amp_attack":0.0008,"amp_decay":0.08,"amp_sustain":0.55,"amp_release":0.006,"vel_to_amp":0.16,
@@ -66,7 +66,7 @@ static const std::vector<Preset> kSynthPresets = {
     {"Layer Hardcore", "のこぎり 2 本を強く歪ませたベース・チョップ",
      R"({"osc_a_wave":"saw","osc_b_wave":"saw","osc_b_level":1,"osc_b_fine":10.4,"drive_type":"tanh","drive":4,
         "post_hp":90,"amp_attack":0.0008,"amp_release":0.004,"gain":1.7})"},
-    {"Layer Psy", "のこぎり + 矩形 → 共振ローパスが一瞬開くベース・チョップ",
+    {"Layer Reso", "のこぎり + 矩形 → 共振ローパスが一瞬開くベース・チョップ",
      R"({"osc_a_wave":"saw","osc_b_wave":"square","osc_b_level":0.25,"filter_type":"lp12","cutoff":300,"fenv_amount":4000,
         "fenv_decay":0.015,"resonance":2.5,"drive_type":"tanh","drive":2.0,"post_hp":90,"amp_attack":0.0008,"amp_release":0.004,"gain":-0.3})"},
     {"Layer Meaty FM", "FM + 歪みの太いベース・チョップ",
@@ -137,7 +137,7 @@ static const std::vector<Preset> kFxPresets = {
      R"({"pump_depth":0.85,"pump_source":"midi","pump_rate":"1/4","pump_length":0.6,"pump_shape":1.2})"},
     {"Tape Stop 2 steps", "16 分 2 つ(0.5 拍)で止まるテープストップ。Tape Stop を on にした所から止まる",
      R"({"tapestop_beats":0.5,"tapestop_end_gain":0.6,"tapestop_auto":"on"})"},
-    {"Hi-Tech Bass Chain", "ハイテクコアのベース向けの Phaser + オールパス + 歪み",
+    {"Hi-Tech Core Bass Chain", "ハイテクコアのベース向けの Phaser + オールパス + 歪み",
      R"({"phaser_mix":0.4,"phaser_rate":0.7,"allpass_stages":12,"allpass_freq":350,"drive_type":"tanh","drive":2.0})"},
     {"Wide + Bass Mono", "バス向けに広げる(幅 260 %、120 Hz 以下はモノラル)",
      R"({"width":2.6,"bass_mono":120})"},

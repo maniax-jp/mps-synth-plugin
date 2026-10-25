@@ -8,7 +8,7 @@ CLI:
   mps_ctl.py list                                   # 起動中のインスタンス(ポート・プラグイン・トラック名・名前)
   mps_ctl.py --track Bass info
   mps_ctl.py --track Bass presets
-  mps_ctl.py --track Bass load "Slap Bass" cutoff=900
+  mps_ctl.py --track Bass load "Wavetable Bass" cutoff=900
   mps_ctl.py --track Bass set filter_type=lp12 cutoff=1200 resonance=1.1
   mps_ctl.py --track Bass get cutoff resonance       # キーなしで全部、--changed で初期値から変えたものだけ
   mps_ctl.py --track Bass params                     # 全パラメータの定義(範囲・単位・選択肢・説明)
@@ -24,7 +24,7 @@ CLI:
 Python:
   from mps_ctl import connect
   bass = connect(track='Bass')
-  bass.load_preset('Slap Bass', cutoff=900)
+  bass.load_preset('Wavetable Bass', cutoff=900)
   bass.set(drive=5.0, drive_type='diode')
   bass.play(41, duration=0.3)
   pump = connect(name='pump')

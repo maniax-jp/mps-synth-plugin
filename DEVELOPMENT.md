@@ -76,7 +76,7 @@ ninja -C build mps_gui_snapshot && build/bin/Release/mps_gui_snapshot gui.png   
 - `mps_render`: プラグインと同じ DSP で WAV を書き出す。DAW のない環境で音を確かめるときに使う。
   ```bash
   build/mps_render --list-presets synth
-  echo '{"plugin":"synth","preset":"Psy Kick","notes":[[0,0.25,32,1]],"out":"kick.wav"}' | build/mps_render -
+  echo '{"plugin":"synth","preset":"Short Kick","notes":[[0,0.25,32,1]],"out":"kick.wav"}' | build/mps_render -
   echo '{"plugin":"fx","preset":"Tape Stop 2 steps","input":"bass.wav","automation":[[1.5,{"tapestop":"on"}]],"bpm":160,"out":"stop.wav"}' | build/mps_render -
   ```
   SPEC は 1 件のオブジェクトか配列。`notes` は `[t, dur, note, vel]`(`"unit":"beats"` で拍単位)、`params` で上書き、`automation` で途中の値を変える。

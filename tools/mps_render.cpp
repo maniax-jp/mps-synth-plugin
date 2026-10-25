@@ -5,7 +5,7 @@
 //   mps_render --list-presets synth|fx
 //   mps_render --list-params synth|fx
 //
-// SPEC: {"plugin": "synth", "preset": "Slap Bass", "params": {"cutoff": 900}, "state": {...},
+// SPEC: {"plugin": "synth", "preset": "Wavetable Bass", "params": {"cutoff": 900}, "state": {...},
 //        "notes": [[0, 0.25, 41, 1.0]], "unit": "seconds"|"beats", "bpm": 160, "length": 2,
 //        "sample_rate": 48000, "automation": [[t, {"key": 値}]], "input": "in.wav", "out": "out.wav", "bits": 24}
 #include <fstream>

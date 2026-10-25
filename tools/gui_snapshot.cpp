@@ -20,12 +20,12 @@ int main(int argc, char** argv) {
     auto* ctrl = new mpsvst::MpsController(mps::synthSpec());
     ctrl->initialize(nullptr);
     mps::ParamStore st(mps::synthSpec());
-    st.loadPreset("Slap Bass", false);
+    st.loadPreset("Wavetable Bass", false);
     st.set(mps::synthSpec().find("cutoff"), 900, false);
     st.set(mps::synthSpec().find("drive"), 5, false);
     for (int i = 0; i < st.size(); ++i)
         ctrl->setParamNormalized(i, mps::toNorm((*mps::synthSpec().params)[i], st.get(i)));
-    ctrl->setStatus({{"port", 47800}, {"track", "Bass"}, {"name", "bass-synth"}, {"preset", "Slap Bass *"}, {"bpm", 160.0}, {"playing", true},
+    ctrl->setStatus({{"port", 47800}, {"track", "Bass"}, {"name", "bass-synth"}, {"preset", "Wavetable Bass *"}, {"bpm", 160.0}, {"playing", true},
                      {"midi_notes", 96}, {"commands", 5},
                      {"log", {"21:04:12  set", "21:04:11  load_preset", "21:04:09  set_name"}}});
     CRect r(0, 0, 560, 400);
