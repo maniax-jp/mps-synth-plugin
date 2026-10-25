@@ -1,6 +1,6 @@
-// MPS FX: ミックス用の処理(テープストップ、曲線で書くサイドチェイン、Phaser、Disperser、
+// MPS FX: ミックス用の処理(テープストップ、曲線で書くサイドチェイン、Phaser、オールパス、
 // 歪み、ステレオ幅 + Bass Mono)をトラック/バスに挿せるようにしたエフェクト。
-// 順番: Pump → Phaser → Disperser → Drive → Tape Stop → Width/Bass Mono → Mix → Gain
+// 順番: Pump → Phaser → オールパス → Drive → Tape Stop → Width/Bass Mono → Mix → Gain
 #pragma once
 #include <vector>
 
@@ -46,7 +46,7 @@ private:
     double tsPos_ = 0, tsLen_ = 1, tsStartIdx_ = 0, tsFade_ = 0;
     bool prevTrig_ = false;
     Phaser phaser_[2];
-    Disperser disp_[2];
+    AllpassChain disp_[2];
     Biquad monoLp_;
 };
 

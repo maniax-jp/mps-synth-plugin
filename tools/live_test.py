@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MPS.vst3 をテスト用ホスト(mps_testhost)で実時間に回し、制御サーバー経由の操作を確かめる。標準ライブラリだけで動く。
+"""MPS.vst3 をテスト用ホスト(mps_testhost)で実時間に回し、AI 接続経由の操作を確かめる。標準ライブラリだけで動く。
 
   python live_test.py BUILD_DIR
 

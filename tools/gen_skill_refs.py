@@ -26,7 +26,7 @@ def params_md(exe):
            'プラグインの定義から自動生成(`tools/gen_skill_refs.py`)。値はプレーン値で送る。',
            'enum はラベルでも番号でもよい。範囲外は丸められる。`scale` は DAW のつまみの曲がり方(cubic = 小さい値を細かく)。', '']
     for plugin, title in (('synth', 'MPS Synth'), ('fx', 'MPS FX')):
-        out += [f'## {title}', '', '| key | 名前 | 範囲 | 既定 | 単位 | 説明 |', '|---|---|---|---|---|---|']
+        out += [f'## {title}', '', '| key | 名前 | 範囲 | 初期値 | 単位 | 説明 |', '|---|---|---|---|---|---|']
         for p in run(exe, '--list-params', plugin):
             if p.get('labels'):
                 rng = ' / '.join(p['labels'])

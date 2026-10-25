@@ -1,6 +1,6 @@
 # MPS プラグイン 開発者向け情報
 
-使う人向けの説明は [README.md](README.md)。ここにはビルド、構成、テスト、リリース、制御サーバーの実装の決まりをまとめる。
+使う人向けの説明は [README.md](README.md)。ここにはビルド、構成、テスト、リリース、操作サーバーの実装の決まりをまとめる。
 
 ## ビルド
 必要なもの: CMake 3.25+、C++17 コンパイラ(Xcode 14+ / Visual Studio 2022 / GCC 11+)、git(VST3 SDK を GitHub から取得する)。
@@ -24,8 +24,8 @@ cmake --build build --config Release
 
 ## 構成
 ```
-core/       DSP(synth / fx)、パラメータ定義、プリセット、状態・制御コマンド・書き出し、制御サーバー(VST3 SDK に依存しない)
-  params.*        ParamDef(key・表示名・単位・スケール・範囲・既定値・ラベル)とプレーン値 ⇔ 0〜1 の変換
+core/       DSP(synth / fx)、パラメータ定義、プリセット、状態・制御コマンド・書き出し、操作サーバー(VST3 SDK に依存しない)
+  params.*        ParamDef(key・表示名・単位・スケール・範囲・初期値・ラベル)とプレーン値 ⇔ 0〜1 の変換
   synth.* fx.*    エンジン(Engine インタフェース)。パラメータの並び = VST3 のパラメータ ID。並びを変えると保存済みの自動化がずれる
   presets.cpp     ファクトリープリセット(状態と同じ JSON)と PluginSpec
   control.*       ParamStore(スレッド間で共有するプレーン値)、状態 JSON、制御コマンド、オフライン書き出し、WAV 読み書き
@@ -40,19 +40,19 @@ plugin/     Claude Code のプラグイン「mps-synth」(.claude-plugin/plugin.
 操作のクライアント `mps_ctl.py` はスキルの中(`plugin/skills/mps-synth-plugin/scripts/`)にあり、スキルと一緒に配る。
 
 ### スレッドとデータの流れ
-- パラメータの正本は `ParamStore`(atomic のプレーン値)。ホストの自動化(`inputParameterChanges`)も制御サーバーの `set` もここに書く。
+- パラメータの正本は `ParamStore`(atomic のプレーン値)。ホストの自動化(`inputParameterChanges`)も操作サーバーの `set` もここに書く。
   オーディオスレッドはブロックの頭で変わった値だけエンジンへ渡す。
-- 制御サーバーで変えた値には dirty 印が付き、次の `process()` で `outputParameterChanges` に載せてホストへ知らせる
+- 操作サーバーで変えた値には dirty 印が付き、次の `process()` で `outputParameterChanges` に載せてホストへ知らせる
   (DAW の表示と自動化の記録が追従する)。値が実際に変わったときだけ印を付ける。
 - `play` / `note_off` はミューテックス付きのキューに積み、オーディオスレッドは `try_lock` で取り出す(待たない)。
 - 状態(`getState` / `setState`)は JSON の文字列 `{"format":"mps-state","version":1,"plugin":"synth","name":...,"preset":...,"params":{...}}`(`name` はインスタンスの名前)。
-  知らないキーは無視、書いていないキーは既定値。
+  知らないキーは無視、書いていないキーは初期値。
 - プロセッサーとコントローラーは IMessage でやり取りする: トラック名(`mps.track`、IInfoListener から)、状態の問い合わせ
   (`mps.status?` → `mps.status`、GUI が 300 ms ごと)。256 文字の制限がある TextMessage は使わず、バイナリ属性 `data` に UTF-8 を入れる。
-- 制御サーバーは 1 インスタンス 1 スレッド、1 クライアントずつ処理する(30 秒黙っている接続は切る)。`render` はサーバーのスレッドで
+- 操作サーバーは 1 インスタンス 1 スレッド、1 クライアントずつ処理する(30 秒黙っている接続は切る)。`render` はサーバーのスレッドで
   別のエンジンを作って合成するので、オーディオスレッドは止めない。
 
-### 制御サーバーのプロトコル
+### 操作サーバーのプロトコル
 1 行 1 JSON の要求 `{"id": 任意, "cmd": "...", ...}` に、1 行 1 JSON `{"id": 同じ, "ok": true, "result": ...}`
 (失敗は `{"ok": false, "error": "..."}`、一部だけ失敗した `set` は `warnings`)で答える。コマンドの一覧はスキルの
 `references/protocol.md`(使う人・AI 向け)。環境変数 `MPS_CTL_PORT_BASE`(既定 47800、100 個の範囲)、`MPS_CTL_DISABLE=1`、
@@ -67,7 +67,7 @@ plugin/     Claude Code のプラグイン「mps-synth」(.claude-plugin/plugin.
 
 ## テスト
 ```bash
-python3 tools/live_test.py build                       # テスト用ホストで実時間に回し、制御サーバー経由の操作を確かめる(標準ライブラリだけ)
+python3 tools/live_test.py build                       # テスト用ホストで実時間に回し、AI 接続経由の操作を確かめる(標準ライブラリだけ)
 python3 tools/gen_skill_refs.py build/mps_render      # スキルの references/parameters.md・presets.md を作り直す(--check で検査だけ)
 ninja -C build mps_gui_snapshot && build/bin/Release/mps_gui_snapshot gui.png   # Linux: ステータス GUI を PNG に
 ```

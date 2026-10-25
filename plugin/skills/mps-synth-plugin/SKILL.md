@@ -1,11 +1,11 @@
 ---
 name: mps-synth-plugin
-description: VST3 プラグイン MPS Synth(音源)/ MPS FX(エフェクト)を AI から操作するときに使う。DAW(REAPER など)のトラックに挿したインスタンスをトラック名で選び、プリセットの読み込み、パラメータの変更、試し鳴らし、WAV 書き出し、状態の保存と復元を GUI を触らずに行う。キック、ハット、クラップ、スラップ/主軸ベース、アシッド、スーパーソウ、wub、矩形波プラック、FM ベル、フォルマント声などの音作り、テープストップ・サイドチェイン・Disperser の設定も含む。
+description: VST3 プラグイン MPS Synth(音源)/ MPS FX(エフェクト)を AI から操作するときに使う。DAW(REAPER など)のトラックに挿したインスタンスをトラック名で選び、プリセットの読み込み、パラメータの変更、試聴、WAV 書き出し、状態の保存と復元を GUI を触らずに行う。キック、ハット、クラップ、メインベース、のこぎり+ウェーブテーブルの歪みベース、アシッド、スーパーソウ、wub、矩形波プラック、FM ベル、3 フォルマントの母音っぽい音などの音作り、テープストップ・サイドチェイン・オールパス(位相の分散)の設定も含む。
 ---
 
 # MPS Synth / MPS FX を AI から操作する
 
-MPS Synth / MPS FX は、DAW に挿したインスタンスごとに 127.0.0.1 で制御サーバーを開く VST3 プラグイン。
+MPS Synth / MPS FX は、DAW に挿したインスタンスごとに 127.0.0.1 で AI からの接続を待ち受ける VST3 プラグイン。
 このスキルの `scripts/mps_ctl.py`(Python 3、標準ライブラリだけ)で操作する。
 
 ```bash
@@ -35,7 +35,7 @@ CTL="python3 ${CLAUDE_SKILL_DIR}/scripts/mps_ctl.py"
 $CTL --track Bass presets                          # プリセット一覧
 $CTL --track Bass load "Slap Bass"                  # 読み込み(続けて key=値 で上書きできる)
 $CTL --track Bass set cutoff=900 drive_type=diode drive=5
-$CTL --track Bass get --changed                     # 既定値から変えた値だけ
+$CTL --track Bass get --changed                     # 初期値から変えた値だけ
 $CTL --track Bass params                            # 全パラメータの範囲・単位・選択肢・説明
 $CTL --track Bass play 41 --velocity 1 --duration 0.3   # その場で鳴らしてユーザーに聴いてもらう
 $CTL --track Bass render /abs/path/probe.wav --notes '[[0,0.6,41,1]]' --bpm 160   # プラグインの中で書き出す
@@ -72,15 +72,15 @@ $CTL --track Bass state > bass.json                 # 状態を保存 / load-sta
   `pump_length`、`pump_shape`。
 - テープストップ: `tapestop` が **off → on に変わった瞬間**に減速を始める(`tapestop_beats` で止まりきるまでの拍数)。
   もう一度使うときは一度 off に戻す。`tapestop_auto=on` なら止まりきったあと元の音に戻る。
-- 他に Phaser、Disperser、歪み、`width` と `bass_mono`、`mix`、`gain`。
+- 他に Phaser、オールパス(`allpass_stages` / `allpass_freq`)、歪み、`width` と `bass_mono`、`mix`、`gain`。
 
 ## 4. DAW 側の操作(REAPER)
 トラックを作る・プラグインを挿す・ノートを打つのは DAW の仕事(REAPER なら ReaScript)。挿すときの名前は
-`VST3i: MPS Synth (Maniax)` と `VST3: MPS FX (Maniax)`。挿したらトラック名を付けてから、この制御サーバーで音色を送る。
+`VST3i: MPS Synth (Maniax)` と `VST3: MPS FX (Maniax)`。挿したらトラック名を付けてから、このスキルで音色を送る。
 DAW のオートメーションでも全パラメータを動かせる(表示名は parameters.md の「名前」)。
 
 ## 5. うまくいかないとき
-- `list` に出ない: プラグインの画面に「制御サーバー: 無効」と出ていないか見てもらう(環境変数 `MPS_CTL_DISABLE=1` か、
+- `list` に出ない: プラグインの画面に「AI 接続: 無効」と出ていないか見てもらう(環境変数 `MPS_CTL_DISABLE=1` か、
   47800〜47899 が全部使われている)。
 - `connection refused`: DAW がプラグインを外した・プロジェクトを閉じた。`list` からやり直す。
 - 音が出ない(`play`): DAW がそのトラックを処理していない(ミュート、オーディオデバイス停止など)。`render` は DAW と関係なく書き出せる。

@@ -5,7 +5,7 @@ enum はラベルでも番号でもよい。範囲外は丸められる。`scale
 
 ## MPS Synth
 
-| key | 名前 | 範囲 | 既定 | 単位 | 説明 |
+| key | 名前 | 範囲 | 初期値 | 単位 | 説明 |
 |---|---|---|---|---|---|
 | `osc_a_wave` | OSC A Wave | saw / square / pulse / sine / triangle / monster / noise / metal | saw |  | saw/square/pulse は polyBLEP、monster は倍音に山のある帯域制限ウェーブテーブル、metal は 808 型の矩形 6 本 |
 | `osc_a_level` | OSC A Level | 0 〜 2 | 1 |  |  |
@@ -71,8 +71,8 @@ enum はラベルでも番号でもよい。範囲外は丸められる。`scale
 | `phaser_rate` | Phaser Rate | 0.01 〜 10 | 0.7 | Hz |  |
 | `phaser_center` | Phaser Center | 50 〜 8000 | 600 | Hz |  |
 | `phaser_depth` | Phaser Depth | 0 〜 4000 | 400 | Hz |  |
-| `disperser_stages` | Disperser Stages | 0 〜 48 | 0 |  |  |
-| `disperser_freq` | Disperser Freq | 30 〜 8000 | 350 | Hz |  |
+| `allpass_stages` | Allpass Stages | 0 〜 48 | 0 |  |  |
+| `allpass_freq` | Allpass Freq | 30 〜 8000 | 350 | Hz |  |
 | `drive_type` | Drive Type | off / tanh / diode / fold / hard | off |  | tanh は tanh(d*x)/tanh(d)、diode は非対称 |
 | `drive` | Drive | 0.1 〜 30 | 1 |  |  |
 | `post_hp` | Post HP | 10 〜 4000 | 10 | Hz | butter 2 次(10 Hz = 実質オフ) |
@@ -82,7 +82,7 @@ enum はラベルでも番号でもよい。範囲外は丸められる。`scale
 
 ## MPS FX
 
-| key | 名前 | 範囲 | 既定 | 単位 | 説明 |
+| key | 名前 | 範囲 | 初期値 | 単位 | 説明 |
 |---|---|---|---|---|---|
 | `pump_depth` | Pump Depth | 0 〜 1 | 0 |  | サイドチェインの深さ(0 = オフ)。周期の頭で下げ、曲線で戻す |
 | `pump_source` | Pump Source | tempo / midi | tempo |  | tempo = 曲の拍に同期、midi = ノートオンごと(キックと同じ位置にゴーストノートを置く) |
@@ -94,11 +94,11 @@ enum はラベルでも番号でもよい。範囲外は丸められる。`scale
 | `phaser_rate` | Phaser Rate | 0.01 〜 10 | 0.7 | Hz |  |
 | `phaser_center` | Phaser Center | 50 〜 8000 | 600 | Hz |  |
 | `phaser_depth` | Phaser Depth | 0 〜 4000 | 400 | Hz |  |
-| `disperser_stages` | Disperser Stages | 0 〜 48 | 0 |  |  |
-| `disperser_freq` | Disperser Freq | 30 〜 8000 | 350 | Hz |  |
+| `allpass_stages` | Allpass Stages | 0 〜 48 | 0 |  |  |
+| `allpass_freq` | Allpass Freq | 30 〜 8000 | 350 | Hz |  |
 | `drive_type` | Drive Type | off / tanh / diode / fold / hard | off |  |  |
 | `drive` | Drive | 0.1 〜 30 | 1 |  |  |
-| `tapestop` | Tape Stop | off / on | off |  | off→on で減速を始める(自動化か制御サーバーで切り替える) |
+| `tapestop` | Tape Stop | off / on | off |  | off→on で減速を始める(自動化か AI 接続で切り替える) |
 | `tapestop_beats` | Tape Stop Length | 0.0625 〜 16 | 0.5 | beats | 止まりきるまでの長さ(拍) |
 | `tapestop_end_gain` | Tape Stop End Gain | 0 〜 1 | 0.6 |  | 止まるまでに音量を 1 → この値に下げる |
 | `tapestop_auto` | Tape Stop Auto Resume | off / on | on |  | on = 止まりきったら元の音に戻る、off = Tape Stop を off にするまで無音 |

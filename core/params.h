@@ -1,4 +1,4 @@
-// パラメータ定義(VST3・制御サーバー・オフライン書き出しで共通)。
+// パラメータ定義(VST3・操作サーバー・オフライン書き出しで共通)。
 // 値は「プレーン値」(Hz、秒、半音など実際の単位)でやり取りし、VST3 の 0〜1 への変換だけをここで行う。
 #pragma once
 #include <string>
@@ -9,7 +9,7 @@ namespace mps {
 enum class Scale { Linear, Cubic, Log, Int, Enum, Bool };
 
 struct ParamDef {
-    const char* key;   // 制御サーバー/状態 JSON のキー(変えない)
+    const char* key;   // 操作サーバー/状態 JSON のキー(変えるときは PluginSpec::find に古いキーを残す)
     const char* name;  // DAW に表示する名前
     const char* unit;
     Scale scale;

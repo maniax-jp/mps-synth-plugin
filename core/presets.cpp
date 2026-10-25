@@ -5,9 +5,9 @@
 namespace mps {
 
 static const std::vector<Preset> kSynthPresets = {
-    {"Init", "既定値(のこぎり 1 本)", R"({})"},
+    {"Init", "初期値(のこぎり 1 本)", R"({})"},
     // ---------------------------------------------------------------- ドラム
-    {"Psy Kick", "短く音程が一気に落ちるサイケ/テックコア向けのキック(160 BPM 前後)。G#1(MIDI 32)で鳴らす",
+    {"Psy Kick", "短く、音程が一気に落ちるテックコア向けのキック(160 BPM 前後)。G#1(MIDI 32)で鳴らす",
      R"({"osc_a_wave":"sine","pitch_env1_hz":260,"pitch_env1_time":0.018,"pitch_env2_hz":1400,"pitch_env2_time":0.0022,
         "amp_attack":0.0005,"amp_hold":0.13,"amp_decay":0.025,"amp_sustain":0,"one_shot":"on","vel_to_amp":0,
         "click_level":0.35,"click_time":0.0025,"click_hp":2500,"drive_type":"tanh","drive":1.8})"},
@@ -55,9 +55,9 @@ static const std::vector<Preset> kSynthPresets = {
     {"Sub Sine", "サインに 2 倍音をわずかに加えたサブベース",
      R"({"osc_a_wave":"sine","fm_ratio":2,"fm_index":0.15,"fm_decay":30,"amp_attack":0.002,"amp_release":0.008,
         "vel_to_amp":0,"post_lp":120})"},
-    {"Main Bass", "ハイテックの主軸ベース。のこぎり → ローパス → Phaser → Disperser(12 段 350 Hz)→ 歪み。DAW 側でマルチバンド・コンプレッサーを足すと締まる",
+    {"Main Bass", "ハイテクコアのメインベース。のこぎり → ローパス → Phaser → オールパス(12 段 350 Hz)→ 歪み。DAW 側でマルチバンド・コンプレッサーを足すと締まる",
      R"({"osc_a_wave":"saw","filter_type":"lp12","cutoff":400,"fenv_amount":3000,"fenv_decay":0.03,"resonance":1.2,
-        "phaser_mix":0.4,"phaser_rate":0.7,"phaser_center":600,"phaser_depth":400,"disperser_stages":12,"disperser_freq":350,
+        "phaser_mix":0.4,"phaser_rate":0.7,"phaser_center":600,"phaser_depth":400,"allpass_stages":12,"allpass_freq":350,
         "drive_type":"tanh","drive":2.0,"post_hp":40,"post_lp":2500,"voice_mode":"mono",
         "amp_attack":0.0008,"amp_release":0.004,"vel_to_amp":0.2,"gain":-4})"},
     {"Layer Saw", "ベース・チョップ用ののこぎり",
@@ -117,7 +117,7 @@ static const std::vector<Preset> kSynthPresets = {
         "amp_sustain":0,"amp_release":0.02})"},
     {"Pad", "デチューンしたのこぎりの控えめなパッド(ハイパス 400 Hz)",
      R"({"osc_a_wave":"saw","unison":2,"detune":0.08,"post_lp":2500,"post_hp":400,"amp_attack":0.5,"amp_release":0.3,"gain":-8})"},
-    {"Formant Vox", "声門パルス + 息 → 3 フォルマントの声。vowel で母音を変える",
+    {"Formant Vox", "のこぎり + 少しのノイズを 3 フォルマントのフィルターに通した、母音っぽい音。vowel で母音を変える",
      R"({"osc_a_wave":"saw","osc_b_wave":"noise","osc_b_level":0.04,"filter_type":"formant","vowel":0,
         "vib_depth":25,"vib_rate":5.5,"vib_delay":0.15,"amp_attack":0.02,"amp_release":0.06})"},
     // ---------------------------------------------------------------- FX
@@ -130,15 +130,15 @@ static const std::vector<Preset> kSynthPresets = {
 };
 
 static const std::vector<Preset> kFxPresets = {
-    {"Init", "既定値(素通し)", R"({})"},
+    {"Init", "初期値(素通し)", R"({})"},
     {"Pump 1/4", "1 拍ごとのサイドチェイン(深さ 1、曲線 1.8、戻り 0.75 拍)",
      R"({"pump_depth":1.0,"pump_rate":"1/4","pump_length":0.75,"pump_shape":1.8})"},
     {"Pump MIDI", "MIDI ノートごとにダッキング(キックと同じ位置にゴーストノートを置く)",
      R"({"pump_depth":0.85,"pump_source":"midi","pump_rate":"1/4","pump_length":0.6,"pump_shape":1.2})"},
     {"Tape Stop 2 steps", "16 分 2 つ(0.5 拍)で止まるテープストップ。Tape Stop を on にした所から止まる",
      R"({"tapestop_beats":0.5,"tapestop_end_gain":0.6,"tapestop_auto":"on"})"},
-    {"Hi-Tech Bass Chain", "ハイテックのベース向けの Phaser + Disperser + 歪み",
-     R"({"phaser_mix":0.4,"phaser_rate":0.7,"disperser_stages":12,"disperser_freq":350,"drive_type":"tanh","drive":2.0})"},
+    {"Hi-Tech Bass Chain", "ハイテクコアのベース向けの Phaser + オールパス + 歪み",
+     R"({"phaser_mix":0.4,"phaser_rate":0.7,"allpass_stages":12,"allpass_freq":350,"drive_type":"tanh","drive":2.0})"},
     {"Wide + Bass Mono", "バス向けに広げる(幅 260 %、120 Hz 以下はモノラル)",
      R"({"width":2.6,"bass_mono":120})"},
 };

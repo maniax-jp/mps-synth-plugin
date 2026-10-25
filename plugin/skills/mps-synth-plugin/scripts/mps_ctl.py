@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """MPS Synth / MPS FX を外部(AI・スクリプト)から操作するクライアント。標準ライブラリだけで動く。
 
-DAW に挿した各インスタンスは 127.0.0.1 の TCP ポート(47800〜)で 1 行 1 JSON の制御サーバーを開き、
+DAW に挿した各インスタンスは 127.0.0.1 の TCP ポート(47800〜)で 1 行 1 JSON の要求を待ち受け、
 ~/.mps-plugins/instances/*.json(Windows は %LOCALAPPDATA%\\mps-plugins\\instances)に自分のポート・トラック名・名前を書く。
 
 CLI:
@@ -10,7 +10,7 @@ CLI:
   mps_ctl.py --track Bass presets
   mps_ctl.py --track Bass load "Slap Bass" cutoff=900
   mps_ctl.py --track Bass set filter_type=lp12 cutoff=1200 resonance=1.1
-  mps_ctl.py --track Bass get cutoff resonance       # キーなしで全部、--changed で既定値から変えたものだけ
+  mps_ctl.py --track Bass get cutoff resonance       # キーなしで全部、--changed で初期値から変えたものだけ
   mps_ctl.py --track Bass params                     # 全パラメータの定義(範囲・単位・選択肢・説明)
   mps_ctl.py --track Bass play 41 --velocity 1 --duration 0.3
   mps_ctl.py --track Bass render out.wav --notes '[[0,0.25,41,1]]' --bpm 160

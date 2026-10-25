@@ -1,5 +1,5 @@
 // MPS.vst3 を DAW の代わりに読み込み、実時間で process() を回すテスト用ホスト。
-// 制御サーバー経由の操作(set → ホストへの通知、play → 発音)を DAW なしで確かめるために使う。
+// AI 接続経由の操作(set → ホストへの通知、play → 発音)を DAW なしで確かめるために使う。
 //
 //   mps_testhost PATH/MPS.vst3 "MPS Synth" SECONDS OUT.wav [--note MIDI] [--input IN.wav] [--track NAME]
 //

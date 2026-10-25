@@ -1,4 +1,4 @@
-# 制御サーバーのプロトコル
+# AI 接続のプロトコル
 
 MPS Synth / MPS FX の各インスタンスは `127.0.0.1` の TCP ポート(47800 から空いている番号)で待ち受け、
 **1 行 1 JSON** の要求に 1 行 1 JSON で答える。`scripts/mps_ctl.py` はこれを包んだもの(標準ライブラリだけで動く)。
@@ -34,8 +34,8 @@ MPS Synth / MPS FX の各インスタンスは `127.0.0.1` の TCP ポート(478
 | `list_presets` | | ファクトリープリセット(name, desc) |
 | `load_preset` | `name`, `params?: {key: 値}` | プリセットを読み込み、`params` で上書き |
 | `get_state` | | 状態 JSON `{"format":"mps-state","version":1,"plugin":"synth","name":"...","preset":"...","params":{...}}` |
-| `set_state` | `state` | 状態を読み込む(書いていないキーは既定値) |
-| `reset` | | 全パラメータを既定値に |
+| `set_state` | `state` | 状態を読み込む(書いていないキーは初期値) |
+| `reset` | | 全パラメータを初期値に |
 | `play` | `note`, `velocity?: 0..1`, `duration?: 秒` | その場で鳴らす(DAW がそのトラックを処理していれば出力に出る) |
 | `note_on` / `note_off` | `note`, `velocity?` | 押しっぱなし / 離す |
 | `panic` | | 全ノートオフ |

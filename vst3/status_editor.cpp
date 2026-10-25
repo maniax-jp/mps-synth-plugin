@@ -36,9 +36,9 @@ void StatusView::draw(CDrawContext* ctx) {
     line(std::string(spec.name) + "  " + mps::kVersion + (iname.empty() ? std::string() : "    [" + iname + "]"), white,
          kNormalFontBig, 26);
     int port = st.value("port", 0);
-    if (st.empty()) line("制御サーバー: 状態を取得中...", dim, kNormalFont, 20);
-    else if (port > 0) line("制御サーバー: 127.0.0.1:" + std::to_string(port), ok, kNormalFont, 20);
-    else line("制御サーバー: 無効(MPS_CTL_DISABLE かポートが空いていない)", warn, kNormalFont, 20);
+    if (st.empty()) line("AI 接続: 状態を取得中...", dim, kNormalFont, 20);
+    else if (port > 0) line("AI 接続: 127.0.0.1:" + std::to_string(port), ok, kNormalFont, 20);
+    else line("AI 接続: 無効(MPS_CTL_DISABLE かポートが空いていない)", warn, kNormalFont, 20);
 
     std::string track = st.value("track", controller_->trackName());
     std::string preset = st.value("preset", std::string("-"));
@@ -47,8 +47,8 @@ void StatusView::draw(CDrawContext* ctx) {
     line("トラック: " + (track.empty() ? std::string("-") : track) + "    名前: " + (iname.empty() ? std::string("-") : iname) +
              "    プリセット: " + preset,
          white, kNormalFont, 20);
-    line(std::string(tempo) + "    MIDI ノート: " + std::to_string(st.value("midi_notes", 0)) + "    AI コマンド: " +
-             std::to_string(st.value("commands", 0)),
+    line(std::string(tempo) + "    受けたノート: " + std::to_string(st.value("midi_notes", 0)) + " 回    AI コマンド: " +
+             std::to_string(st.value("commands", 0)) + " 回",
          dim, kNormalFontSmall, 18);
 
     y += 4;
@@ -62,7 +62,7 @@ void StatusView::draw(CDrawContext* ctx) {
     } else line("  (まだありません)", dim, kNormalFontSmall, 15);
 
     y += 6;
-    line("既定値から変えたパラメータ", accent, kNormalFontSmall, 16);
+    line("初期値から変えたパラメータ", accent, kNormalFontSmall, 16);
     std::vector<std::string> items;
     const auto& defs = *spec.params;
     for (size_t i = 0; i < defs.size(); ++i) {
@@ -73,7 +73,7 @@ void StatusView::draw(CDrawContext* ctx) {
         if (*d.unit) s += std::string(" ") + d.unit;
         items.push_back(s);
     }
-    if (items.empty()) line("  (なし: すべて既定値)", dim, kNormalFontSmall, 15);
+    if (items.empty()) line("  (なし: すべて初期値)", dim, kNormalFontSmall, 15);
     ctx->setFont(kNormalFontSmall);
     ctx->setFontColor(white);
     const int cols = 2;

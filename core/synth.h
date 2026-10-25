@@ -1,9 +1,9 @@
-// MPS Synth: キック、ハット、クラップ、スラップ/主軸ベース、スーパーソウ、アシッド、wub コード、矩形波プラック、
-// FM ベル、フォルマント声などを 1 つのボイス構成で鳴らせる音源。
+// MPS Synth: キック、ハット、クラップ、メインベース、スーパーソウ、アシッド、wub コード、矩形波プラック、
+// FM ベル、母音っぽい音などを 1 つのボイス構成で鳴らせる音源。
 //
 // ボイス: OSC A + OSC B(ユニゾン)+ サブ → フィルター(エンベロープ・LFO・キー追従)→ アンプ(AHDSR / バースト)
 //         + クリック(HP ノイズ)+ ノイズ層
-// 全体:   Phaser → Disperser → Drive → ポスト HP/LP → 中域カット → Gain
+// 全体:   Phaser → オールパス → Drive → ポスト HP/LP → 中域カット → Gain
 #pragma once
 #include <vector>
 
@@ -85,7 +85,7 @@ private:
     int unison_ = 1;
 
     Phaser phaser_[2];
-    Disperser disp_[2];
+    AllpassChain disp_[2];
     Biquad postHp_[2], postLp_[2], midLp_[2], midHp_[2];
     std::vector<float> bufL_, bufR_;
 };

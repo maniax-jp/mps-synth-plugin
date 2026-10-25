@@ -118,7 +118,7 @@ tresult PLUGIN_API MpsProcessor::process(ProcessData& data) {
                 store_.set(static_cast<int>(id), mps::toPlain((*spec_.params)[id], v), false);
         }
     }
-    // ---- 制御サーバーで変えた値をホストへ知らせる(DAW の表示・自動化の記録)
+    // ---- AI 接続で変えた値をホストへ知らせる(DAW の表示・自動化の記録)
     if (auto* outChanges = data.outputParameterChanges) {
         for (int i = 0; i < store_.size(); ++i) {
             if (!store_.takeDirty(i)) continue;
@@ -143,7 +143,7 @@ tresult PLUGIN_API MpsProcessor::process(ProcessData& data) {
     playing_ = tr.playing;
     if (data.numSamples <= 0 || data.numOutputs < 1 || data.outputs[0].numChannels < 2) return kResultOk;
 
-    // ---- 制御サーバーからのノート(ブロック先頭で鳴らす)
+    // ---- AI 接続からのノート(ブロック先頭で鳴らす)
     if (noteMutex_.try_lock()) {
         for (const auto& p : pending_) {
             if (p.off) engine_->noteOff(p.note);

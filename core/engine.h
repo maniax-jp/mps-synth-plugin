@@ -29,7 +29,7 @@ public:
 struct Preset {
     const char* name;
     const char* desc;    // 何の音か・鳴らす前提の音程
-    const char* values;  // 状態と同じ JSON(省略したキーは既定値)
+    const char* values;  // 状態と同じ JSON(省略したキーは初期値)
 };
 
 struct PluginSpec {
@@ -42,6 +42,9 @@ struct PluginSpec {
     int find(const std::string& key) const {
         for (size_t i = 0; i < params->size(); ++i)
             if (key == (*params)[i].key) return static_cast<int>(i);
+        // 0.2.0 までのキー(保存済みの状態とスクリプトを読めるように)
+        if (key == "disperser_stages") return find("allpass_stages");
+        if (key == "disperser_freq") return find("allpass_freq");
         return -1;
     }
 };

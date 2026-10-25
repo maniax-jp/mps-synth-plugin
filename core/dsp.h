@@ -1,4 +1,4 @@
-// 合成部品(オシレーター、フィルター、歪み、Phaser、Disperser)。すべて 1 サンプルずつ処理する。
+// 合成部品(オシレーター、フィルター、歪み、Phaser、オールパス)。すべて 1 サンプルずつ処理する。
 #pragma once
 #include <algorithm>
 #include <cmath>
@@ -144,8 +144,8 @@ struct Phaser {
     }
 };
 
-// ---- Disperser: 2 次オールパスを何段も重ねて、指定した周波数付近の位相を引き伸ばす
-struct Disperser {
+// ---- オールパス(位相の分散): 2 次オールパスを何段も重ねて、指定した周波数付近の位相を引き伸ばす
+struct AllpassChain {
     static constexpr int kMax = 48;
     Biquad st[kMax];
     int n = 0;

@@ -1,5 +1,5 @@
-// 状態を表示するだけの GUI(操作はしない。値の変更は DAW の汎用画面か制御サーバーで行う)。
-// 制御ポート・トラック名・プリセット名・AI から届いたコマンド・既定値から変えたパラメータを表示する。
+// 状態を表示するだけの GUI(操作はしない。値の変更は DAW の汎用画面か AI 接続で行う)。
+// 制御ポート・トラック名・プリセット名・AI から届いたコマンド・初期値から変えたパラメータを表示する。
 #pragma once
 #include "public.sdk/source/vst/vstguieditor.h"
 #include "vstgui/lib/cvstguitimer.h"

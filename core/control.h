@@ -1,5 +1,5 @@
 // 状態(パラメータ値)の保持、状態 JSON、制御コマンド、オフライン書き出し。
-// VST3 のプロセッサー・制御サーバー・mps_render CLI で共通に使う。
+// VST3 のプロセッサー・操作サーバー・mps_render CLI で共通に使う。
 #pragma once
 #include <atomic>
 #include <functional>
@@ -72,7 +72,7 @@ struct RenderResult {
 RenderResult render(const PluginSpec& spec, const ParamStore& params, const RenderRequest& req);
 bool writeWav(const std::string& path, const std::vector<float>& L, const std::vector<float>& R, double sr, int bits = 24);
 bool readWav(const std::string& path, std::vector<float>& L, std::vector<float>& R, double& sr);
-// JSON(制御サーバー/CLI 共通の書式)から RenderRequest を作る
+// JSON(操作サーバー/CLI 共通の書式)から RenderRequest を作る
 bool parseRenderRequest(const json& j, RenderRequest& req, std::string& err);
 
 // 実機(プロセッサー)側でしかできない操作
