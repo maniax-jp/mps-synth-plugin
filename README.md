@@ -1,7 +1,7 @@
 # MPS Synth / MPS FX
 
 テックコア、ハイテクコア、フューチャーコアなど、ハードコア系の曲の音作りに使う VST3 プラグインです。
-**AI(Claude など)が GUI を触らずに外部から操作できる**のが特長で、DAW に挿したトラックを名前で選び、
+**AIが GUI を触らずに外部から操作できる**のが特長で、DAW に挿したトラックを名前で選び、
 プリセットの読み込み、音色の調整、試聴、WAV の書き出しを AI に任せられます。
 
 - **MPS Synth**(音源): キック、スネア、クラップ、ハット、クラッシュ、メインベース、のこぎり+ウェーブテーブルの歪みベース、アシッド、
@@ -9,11 +9,11 @@
   2 つのオシレーター、ユニゾン、キックのピッチ・エンベロープ、フィルター(LP/HP/BP/フォルマント)、Phaser・オールパス(位相の分散)・歪みを内蔵。
 - **MPS FX**(エフェクト): サイドチェイン(曲のテンポか MIDI ノートで)、テープストップ、Phaser、オールパス、歪み、
   ステレオ幅 + Bass Mono。プリセットは 6 つ。
-- 対応: macOS(**Apple Silicon と Intel のユニバーサル**、10.15 以降)、Windows 10/11(x64)、Linux(x64)。VST3 に対応した DAW。
+- 対応: macOS(10.15 以降)、Windows 10/11(x64)、Linux(x64)。VST3 に対応した DAW(Ableton Live、REAPERを推奨)。
 
 ![プラグインの画面](docs/status-gui.png)
 
-画面は状態を見るためのもので、操作はしません。トラック名、プリセット名(手で変えると末尾に `*`)、AI から届いた最近のコマンド、
+画面は状態を見るためのもので、操作はできません。トラック名、プリセット名(手で変えると末尾に `*`)、AI から届いた最近のコマンド、
 初期値から変えたパラメータが出ます。音色は DAW の汎用パラメータ画面やオートメーションでも変えられます。
 
 ## インストール
@@ -24,14 +24,14 @@
    - Windows: `C:\Program Files\Common Files\VST3\`
    - Linux: `~/.vst3/`
 3. **macOS のみ**: ダウンロードしたプラグインは読み込みを止められるので、ターミナルで次を実行します。
-   ```bash
+   ```zsh
    xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/MPS.vst3
    ```
 4. DAW でプラグインを再スキャンします。音源プラグインとして MPS Synth が、FX プラグインとして MPS FX が読み込まれます。
 
 zip にはほかに AI 用のスキル `mps-synth-plugin-skill.zip` が入っています。
 
-## AI から操作する(Claude 用スキル)
+## AI から操作する
 Claude に操作方法を教えるスキル `mps-synth-plugin` を用意しています。どれか 1 つの方法で入れてください。
 
 - **Claude Code(プラグインとして)**:
@@ -44,7 +44,7 @@ Claude に操作方法を教えるスキル `mps-synth-plugin` を用意して�
 - **claude.ai**: 設定の「Skills」で `mps-synth-plugin-skill.zip` をそのままアップロードします。
 
 スキルの中の操作スクリプトは Python 3 で動くので、DAW と同じマシンに Python 3 が必要です。
-使い方の例(Claude に頼むとこの操作をしてくれます):
+使い方の例(AIに頼むと内部でこの操作をします):
 ```bash
 python3 mps_ctl.py list                                  # 47800  MPS Synth  track='Bass'
 python3 mps_ctl.py --track Bass load "Wavetable Bass"
@@ -68,7 +68,6 @@ DAW のトラックに名前を付けておくと、AI が「Bass トラック�
 ## うまく動かないとき
 - **DAW に出てこない**(macOS): 上の `xattr` を実行したか確かめ、それでもだめなら `codesign --force --deep --sign - MPS.vst3` を実行して再スキャンします。
 - **AI から見つからない**: プラグインの画面の「AI 接続」の行を見てください。`無効` なら環境変数 `MPS_CTL_DISABLE` を外して DAW を起動し直します。
-- **テープストップが 2 回目に動かない**: `Tape Stop` は off → on に変わった瞬間に始まります。一度 off に戻してください。
 
 ソースからのビルドや仕組みは [DEVELOPMENT.md](DEVELOPMENT.md) を見てください。
 
